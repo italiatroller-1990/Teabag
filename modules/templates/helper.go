@@ -14,6 +14,7 @@ import (
 
 	"gitea.dev/modules/base"
 	"gitea.dev/modules/htmlutil"
+	"gitea.dev/modules/htmxui"
 	"gitea.dev/modules/markup"
 	"gitea.dev/modules/public"
 	"gitea.dev/modules/setting"
@@ -49,6 +50,7 @@ func newFuncMapWebPage() template.FuncMap {
 		// -----------------------------------------------------------------
 		// svg / avatar / icon / color
 		"svg":           svg.RenderHTML,
+		"xIcon":         htmxui.RenderHTML,
 		"MigrationIcon": migrationIcon,
 		"ActionIcon":    actionIcon,
 		"SortArrow":     sortArrow,

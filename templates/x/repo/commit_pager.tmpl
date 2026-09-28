@@ -1,0 +1,22 @@
+{{/* Commit pagination. Plain links; HTMX swaps them into #x-list when present. */}}
+<nav class="x-pager" aria-label="{{ctx.Locale.Tr "x.pagination"}}">
+	{{$base := print .XRepoLink "/commits/branch/" (.RefFullName.ShortName | PathEscapeSegments)}}
+	{{if .TreePath}}{{$base = print $base "/" (.TreePath | PathEscapeSegments)}}{{end}}
+	{{if .XHasPrev}}
+		<a class="x-btn x-btn-sm" rel="prev" href="{{$base}}?page={{Eval .XPage "-" 1}}"
+			hx-get="{{$base}}?page={{Eval .XPage "-" 1}}" hx-select="#x-list" hx-target="#x-list" hx-swap="outerHTML">
+			{{xIcon "x-chevron-left"}}{{ctx.Locale.Tr "repo.issues.previous"}}
+		</a>
+	{{else}}
+		<span class="x-btn x-btn-sm" aria-disabled="true">{{xIcon "x-chevron-left"}}{{ctx.Locale.Tr "repo.issues.previous"}}</span>
+	{{end}}
+	<span class="x-meta">{{ctx.Locale.Tr "x.page_of" .XPage (Eval .XCommitCount "/" .XPageSize)}}</span>
+	{{if .XHasNext}}
+		<a class="x-btn x-btn-sm" rel="next" href="{{$base}}?page={{Eval .XPage "+" 1}}"
+			hx-get="{{$base}}?page={{Eval .XPage "+" 1}}" hx-select="#x-list" hx-target="#x-list" hx-swap="outerHTML">
+			{{ctx.Locale.Tr "repo.issues.next"}}{{xIcon "x-chevron-right"}}
+		</a>
+	{{else}}
+		<span class="x-btn x-btn-sm" aria-disabled="true">{{ctx.Locale.Tr "repo.issues.next"}}{{xIcon "x-chevron-right"}}</span>
+	{{end}}
+</nav>

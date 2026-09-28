@@ -1,0 +1,20 @@
+{{/* User list body, shared by the full page and the HTMX fragment. */}}
+<div id="x-list" class="x-card x-swap-fade">
+	<span id="x-list-indicator" class="htmx-indicator x-meta" aria-live="polite">{{ctx.Locale.Tr "x.loading"}}</span>
+	{{if .Users}}
+		<ul class="x-list">
+			{{range .Users}}
+				<li>
+					{{ctx.AvatarUtils.Avatar . 28}}
+					<a class="x-list-title" href="{{.HTMLURL ctx}}">{{.Name}}</a>
+					{{if .FullName}}<span class="x-meta">{{.FullName}}</span>{{end}}
+					<span class="x-spacer"></span>
+					{{if .Location}}<span class="x-meta">{{.Location}}</span>{{end}}
+					<span class="x-meta">{{ctx.Locale.Tr "user.joined_on" (DateUtils.AbsoluteShort .CreatedUnix)}}</span>
+				</li>
+			{{end}}
+		</ul>
+	{{else}}
+		{{template "x/base/empty" .}}
+	{{end}}
+</div>

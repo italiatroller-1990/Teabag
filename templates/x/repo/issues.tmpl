@@ -1,0 +1,33 @@
+{{template "x/base/head_start" .}}
+	{{template "x/repo/header" .}}
+	<div style="margin-top:16px">
+		<h1 class="x-page-title">{{xIcon "x-issue-opened"}}{{ctx.Locale.Tr "repo.issues"}}</h1>
+		{{template "x/repo/breadcrumb" .}}
+
+		{{/* Issue filters are ordinary query parameters, so each combination is a
+		     shareable URL. HTMX narrows the list in place while typing. */}}
+		<form class="x-toolbar" method="get" action="{{.XRepoLink}}/issues"
+			hx-get="{{.XRepoLink}}/issues"
+			hx-select="#x-issue-list"
+			hx-target="#x-issue-list"
+			hx-swap="outerHTML"
+			hx-trigger="input changed delay:300ms, search, change, submit"
+			hx-indicator="#x-issue-indicator">
+			<input type="search" name="q" value="{{.Keyword}}" placeholder="{{ctx.Locale.Tr "x.search_issues"}}" aria-label="{{ctx.Locale.Tr "x.search_issues"}}" autocomplete="off">
+			<label class="x-sr-only" for="x-state">{{ctx.Locale.Tr "x.state"}}</label>
+			<select id="x-state" name="state">
+				<option value="open" {{if eq .State "open"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.open"}}</option>
+				<option value="closed" {{if eq .State "closed"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.closed"}}</option>
+				<option value="all" {{if eq .State "all"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.all"}}</option>
+			</select>
+			<label class="x-sr-only" for="x-poster">{{ctx.Locale.Tr "repo.issues.filter_poster"}}</label>
+			<input id="x-poster" name="poster" value="{{.Poster}}" placeholder="{{ctx.Locale.Tr "repo.issues.filter_poster"}}" autocomplete="off">
+			<button type="submit" class="x-btn x-btn-primary">{{xIcon "x-search"}}{{ctx.Locale.Tr "x.search"}}</button>
+			<a class="x-btn" href="{{.XRepoLink}}/issues">{{ctx.Locale.Tr "filter.clear"}}</a>
+		</form>
+		<span id="x-issue-indicator" class="htmx-indicator x-meta" aria-live="polite">{{ctx.Locale.Tr "x.loading"}}</span>
+
+		{{template "x/repo/issue_list" .}}
+		{{template "x/base/pager" .}}
+	</div>
+{{template "x/base/head_end" .}}

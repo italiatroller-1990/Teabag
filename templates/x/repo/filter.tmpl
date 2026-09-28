@@ -1,0 +1,19 @@
+{{/* Filter the directory listing. A GET form works on its own; HTMX only turns
+     typing into an in-place update of #x-file-list, and hx-select keeps the
+     server response a full page so both paths share one handler. */}}
+<form class="x-toolbar" method="get" action="{{.TreeLink}}"
+	hx-get="{{.TreeLink}}"
+	hx-select="#x-file-list"
+	hx-target="#x-file-list"
+	hx-swap="outerHTML"
+	hx-trigger="input changed delay:300ms, search, submit"
+	hx-indicator="#x-file-list-indicator">
+	<input type="search" name="filter" value="{{.XFileFilter}}" placeholder="{{ctx.Locale.Tr "x.filter_files"}}" aria-label="{{ctx.Locale.Tr "x.filter_files"}}" autocomplete="off">
+	<button type="submit" class="x-btn">{{xIcon "x-search"}}{{ctx.Locale.Tr "x.filter"}}</button>
+	{{if .XFileFilter}}<a class="x-btn" href="{{.TreeLink}}">{{ctx.Locale.Tr "filter.clear"}}</a>{{end}}
+	<span class="x-spacer"></span>
+	<a class="x-btn x-btn-sm" href="{{.XRepoLink}}/commits/branch/{{.RefFullName.ShortName}}{{if .TreePath}}/{{PathEscapeSegments .TreePath}}{{end}}">
+		{{xIcon "x-history"}}{{ctx.Locale.Tr "repo.file_history"}}
+	</a>
+</form>
+<span id="x-file-list-indicator" class="htmx-indicator x-meta" aria-live="polite">{{ctx.Locale.Tr "x.loading"}}</span>

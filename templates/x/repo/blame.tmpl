@@ -1,0 +1,26 @@
+{{template "x/base/head_start" .}}
+	{{template "x/repo/header" .}}
+	<div style="margin-top:16px">
+		<h1 class="x-page-title">{{xIcon "x-eye"}}{{ctx.Locale.Tr "repo.blame"}}
+			<span class="x-meta mono">{{.FileTreePath}}</span>
+		</h1>
+		{{template "x/repo/breadcrumb" .}}
+		{{if .IsFileTooLarge}}
+			<div class="x-card x-card-body">{{ctx.Locale.Tr "repo.file_too_large"}}</div>
+		{{else}}
+			<div class="x-card" style="margin-top:12px">
+				{{range .BlameRows}}
+					{{/* one row per line; the commit cell only appears on the first
+					     line of a run, which is how every forge renders blame */}}
+					<div class="x-blame-row">
+						<span class="x-blame-line">{{.RowNumber}}</span>
+						<span class="x-blame-code">{{.Code}}</span>
+						<span class="x-blame-commit">
+							{{if .CommitURL}}<a href="{{.CommitURL}}" title="{{.CommitMessage}}">{{ShortSha .CommitURL}}</a>{{end}}
+						</span>
+					</div>
+				{{end}}
+			</div>
+		{{end}}
+	</div>
+{{template "x/base/head_end" .}}

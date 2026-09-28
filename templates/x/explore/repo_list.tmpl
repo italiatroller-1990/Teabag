@@ -1,0 +1,30 @@
+{{/* Repository list body. This partial is rendered on its own as the HTMX
+     fragment target and included by the full page, so both paths emit exactly
+     the same markup and there is only one place to change. */}}
+<div id="x-list" class="x-card x-swap-fade">
+	<span id="x-list-indicator" class="htmx-indicator x-meta" aria-live="polite">{{ctx.Locale.Tr "x.loading"}}</span>
+	{{if .Repos}}
+		<ul class="x-list">
+			{{range .Repos}}
+				<li>
+					{{if .IsPrivate}}{{xIcon "x-lock"}}{{else if .IsFork}}{{xIcon "x-repo-forked"}}{{else}}{{xIcon "x-repo"}}{{end}}
+					<a class="x-list-title" href="{{.Link}}">{{.Name}}</a>
+					{{if .Owner}}<span class="x-meta">/ {{.Owner.Name}}</span>{{end}}
+					<span class="label-list">
+						{{if .IsArchived}}<span class="x-badge">{{ctx.Locale.Tr "repo.desc.archived"}}</span>{{end}}
+						{{if .IsPrivate}}<span class="x-badge">{{ctx.Locale.Tr "repo.desc.private"}}</span>{{end}}
+						{{if .IsTemplate}}<span class="x-badge">{{ctx.Locale.Tr "repo.desc.template"}}</span>{{end}}
+					</span>
+					<span class="x-spacer"></span>
+					{{if .PrimaryLanguage}}<span class="x-meta">{{.PrimaryLanguage.Language}}</span>{{end}}
+					<span class="x-badge" title="{{ctx.Locale.Tr "repo.stars"}}">{{xIcon "x-repo-starred" 12}}{{CountFmt .NumStars}}</span>
+					<span class="x-badge" title="{{ctx.Locale.Tr "repo.pulls"}}">{{xIcon "x-git-pull-request" 12}}{{CountFmt .NumOpenPulls}}</span>
+					<span class="x-badge" title="{{ctx.Locale.Tr "repo.forks"}}">{{xIcon "x-repo-forked" 12}}{{CountFmt .NumForks}}</span>
+					<span class="x-meta">{{ctx.Locale.Tr "org.repo_updated"}} {{DateUtils.TimeSince .UpdatedUnix}}</span>
+				</li>
+			{{end}}
+		</ul>
+	{{else}}
+		{{template "x/base/empty" .}}
+	{{end}}
+</div>

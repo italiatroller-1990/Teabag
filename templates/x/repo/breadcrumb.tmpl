@@ -1,0 +1,8 @@
+{{/* Path breadcrumb. Plain links: navigation must work before any JS loads. */}}
+<nav class="x-breadcrumb" aria-label="{{ctx.Locale.Tr "x.code"}}">
+	<span><a href="{{.XRepoLink}}">{{.Repository.Name}}</a></span>
+	{{range $i, $name := .TreeNames}}
+		{{$p := index $.Paths $i}}
+		<span><a href="{{$.TreeLink}}/{{PathEscapeSegments $p}}">{{$name}}</a></span>
+	{{end}}
+</nav>

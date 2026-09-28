@@ -1,0 +1,5 @@
+{{/* Flash and error banners, rendered server-side so they survive without JavaScript. */}}
+{{if .Flash.ErrorMsg}}<div class="x-alert x-alert-danger x-flash" role="alert">{{xIcon "x-alert"}}{{.Flash.ErrorMsg}}</div>{{end}}
+{{if .Flash.WarningMsg}}<div class="x-alert x-alert-warning x-flash" role="alert">{{xIcon "x-alert"}}{{.Flash.WarningMsg}}</div>{{end}}
+{{if .Flash.InfoMsg}}<div class="x-alert x-flash" role="status">{{xIcon "x-info"}}{{.Flash.InfoMsg}}</div>{{end}}
+{{if .Flash.SuccessMsg}}<div class="x-alert x-flash-success x-flash" role="status">{{xIcon "x-check"}}{{.Flash.SuccessMsg}}</div>{{end}}

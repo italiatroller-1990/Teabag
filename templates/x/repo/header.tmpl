@@ -1,0 +1,17 @@
+{{/* Repository header: identity, branch and the handful of actions the
+     experimental frontend supports. Everything else links to the classic UI. */}}
+<div class="x-card x-card-head" style="border-radius:var(--radius) var(--radius) 0 0">
+	{{if .Repository.IsPrivate}}{{xIcon "x-lock"}}{{else if .Repository.IsFork}}{{xIcon "x-repo-forked"}}{{else}}{{xIcon "x-repo" 20}}{{end}}
+	<span class="x-list-title">{{.Repository.Owner.Name}} / {{.Repository.Name}}</span>
+	{{if .Repository.IsArchived}}<span class="x-badge">{{ctx.Locale.Tr "repo.desc.archived"}}</span>{{end}}
+	{{if .Repository.IsEmpty}}<span class="x-badge">{{ctx.Locale.Tr "repo.empty"}}</span>{{end}}
+	<span class="x-spacer"></span>
+	{{if .RefFullName}}
+		<span class="x-badge" title="{{.RefFullName.RefType}}">{{xIcon "x-git-branch" 12}}{{.RefFullName.ShortName}}</span>
+		<button type="button" class="x-btn x-btn-sm" data-x-copy="{{.XCloneAddr}}">
+			{{xIcon "x-copy"}}{{ctx.Locale.Tr "copy"}}
+		</button>
+	{{end}}
+	<a class="x-btn x-btn-sm" href="{{.XRepoLink}}/src/branch/{{.Repository.DefaultBranch | PathEscapeSegments}}">{{xIcon "x-code"}}{{ctx.Locale.Tr "repo.code"}}</a>
+	<a class="x-btn x-btn-sm" href="{{.XRepoLink}}/commits/branch/{{.Repository.DefaultBranch | PathEscapeSegments}}">{{xIcon "x-history"}}{{ctx.Locale.Tr "repo.file_history"}}</a>
+</div>

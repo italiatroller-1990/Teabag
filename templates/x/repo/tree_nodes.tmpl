@@ -1,0 +1,22 @@
+{{/* One directory level of the file tree. */}}
+<ul class="x-tree" data-x-path="{{.XTreePath}}">
+	{{range .XTreeNodes}}
+		<li class="x-tree-item">
+			{{if .IsDir}}
+				<button type="button" class="x-btn x-btn-sm" style="border:0;background:none;padding:0"
+					hx-get="{{.ChildrenURL}}"
+					hx-target="closest li > ul"
+					hx-swap="beforeend"
+					hx-indicator="closest li">
+					{{xIcon "x-chevron-right" 12}}{{xIcon "x-folder"}}
+				</button>
+				<a class="x-tree-name" href="{{$.XRepoLink}}/src/branch/{{$.RefFullName.ShortName}}/{{PathEscapeSegments .Path}}">{{.Name}}</a>
+			{{else}}
+				{{xIcon "x-file"}}
+				<a class="x-tree-name" href="{{$.XRepoLink}}/src/branch/{{$.RefFullName.ShortName}}/{{PathEscapeSegments .Path}}">{{.Name}}</a>
+			{{end}}
+		</li>
+	{{else}}
+		<li class="x-tree-item x-meta">{{ctx.Locale.Tr "x.empty_directory"}}</li>
+	{{end}}
+</ul>

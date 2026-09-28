@@ -1,0 +1,10 @@
+{{template "x/base/head_start" .}}
+	{{template "x/repo/header" .}}
+	<div class="x-grid" style="margin-top:16px">
+		<div>{{template "x/repo/tree" .}}</div>
+		<div>
+			{{template "x/repo/breadcrumb" .}}
+			{{template "x/repo/file" .}}
+		</div>
+	</div>
+{{template "x/base/head_end" .}}

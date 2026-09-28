@@ -1,0 +1,33 @@
+{{/* Pagination. Every control is a real link, so it works with JavaScript disabled.
+     HTMX only upgrades the click into a fragment swap of #x-list; without it the
+     browser follows the link and the server sends the full page. */}}
+{{$p := .Page}}
+{{with $p.Paginator}}
+	{{if gt .TotalPages 1}}
+		{{$link := ctx.RootData.Link}}
+		{{$params := $p.GetParams}}
+		<nav class="x-pager" aria-label="{{ctx.Locale.Tr "x.pagination"}}">
+			{{if .HasPrevious}}
+				{{$href := print $link "?page=" .Previous}}{{if $params}}{{$href = print $href "&" $params}}{{end}}}
+				<a class="x-btn x-btn-sm" rel="prev" href="{{$href}}"
+					hx-get="{{$href}}" hx-target="#x-list" hx-swap="innerHTML" hx-indicator="#x-list-indicator">
+					{{xIcon "x-chevron-left"}}{{ctx.Locale.Tr "repo.issues.previous"}}
+				</a>
+			{{else}}
+				<span class="x-btn x-btn-sm" aria-disabled="true">{{xIcon "x-chevron-left"}}{{ctx.Locale.Tr "repo.issues.previous"}}</span>
+			{{end}}
+
+			<span class="x-meta">{{ctx.Locale.Tr "x.page_of" .Current .TotalPages}}</span>
+
+			{{if .HasNext}}
+				{{$href := print $link "?page=" .Next}}{{if $params}}{{$href = print $href "&" $params}}{{end}}}
+				<a class="x-btn x-btn-sm" rel="next" href="{{$href}}"
+					hx-get="{{$href}}" hx-target="#x-list" hx-swap="innerHTML" hx-indicator="#x-list-indicator">
+					{{ctx.Locale.Tr "repo.issues.next"}}{{xIcon "x-chevron-right"}}
+				</a>
+			{{else}}
+				<span class="x-btn x-btn-sm" aria-disabled="true">{{ctx.Locale.Tr "repo.issues.next"}}{{xIcon "x-chevron-right"}}</span>
+			{{end}}
+		</nav>
+	{{end}}
+{{end}}

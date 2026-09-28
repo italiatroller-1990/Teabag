@@ -1,0 +1,44 @@
+{{/* Directory listing. Rendered inline on first paint; when the filter below
+     is used with JavaScript, HTMX re-renders exactly this element. Without
+     JavaScript the form submits and the server sends the same markup. */}}
+<div id="x-file-list" class="x-card x-swap-fade">
+	<div class="x-card-head">
+		{{xIcon "x-git-commit"}}{{ctx.Locale.Tr "x.last_commit"}}
+		<span class="x-spacer"></span>
+		{{if .LatestCommit}}
+			<span class="x-meta" title="{{DateUtils.AbsoluteLong .LatestCommit.Committer.When}}">{{DateUtils.TimeSince .LatestCommit.Committer.When}}</span>
+		{{end}}
+	</div>
+	{{if .HasParentPath}}
+		<ul class="x-tree"><li class="x-tree-item">
+			{{xIcon "x-folder"}}{{xIcon "x-arrow-left" 12}}
+			<a class="x-tree-name" href="{{.BranchLink}}{{if .ParentPath}}/{{PathEscapeSegments .ParentPath}}{{end}}">..</a>
+		</li></ul>
+	{{end}}
+	{{if .Files}}
+		<ul class="x-tree">
+			{{range $item := .Files}}
+				{{$entry := $item.Entry}}
+				<li class="x-tree-item">
+					{{if $entry.IsSubModule}}
+						{{xIcon "x-repo"}}{{xIcon "x-link" 12}}
+						<span class="x-tree-name" title="{{$entry.Name}}">{{$entry.Name}}</span>
+						{{if $item.SubmoduleFile}}@ <span class="mono">{{ShortSha $item.SubmoduleFile.RefID}}</span>{{end}}
+					{{else}}
+						{{if $entry.IsDir}}{{xIcon "x-folder"}}{{else if $entry.IsLink}}{{xIcon "x-file"}}{{xIcon "x-link" 12}}{{else}}{{xIcon "x-file"}}{{end}}
+						<a class="x-tree-name" href="{{$.TreeLink}}/{{PathEscapeSegments $entry.Name}}" title="{{$entry.Name}}">{{$entry.Name}}</a>
+					{{end}}
+					<span class="x-spacer"></span>
+					{{if $item.Commit}}
+						<a class="x-tree-msg" href="{{$.XRepoLink}}/commit/{{PathEscape $item.Commit.ID.String}}" title="{{$item.Commit.MessageUTF8}}">{{$item.Commit.MessageTitle}}</a>
+					{{end}}
+					{{if $item.Commit}}<span class="x-tree-commit">{{ShortSha $item.Commit.ID.String}}</span>{{end}}
+				</li>
+			{{end}}
+		</ul>
+	{{else if .XFileFilter}}
+		<div class="x-empty">{{xIcon "x-search" 24}} {{ctx.Locale.Tr "x.no_matching_files"}}</div>
+	{{else}}
+		<div class="x-empty">{{xIcon "x-folder" 24}} {{ctx.Locale.Tr "x.empty_directory"}}</div>
+	{{end}}
+</div>

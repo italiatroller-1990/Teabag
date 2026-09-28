@@ -1,0 +1,38 @@
+{{define "x/base/head_start"}}
+<!DOCTYPE html>
+<html lang="{{ctx.Locale.Lang}}">
+<head>
+	{{ctx.HeadMetaContentSecurityPolicy}}
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{{if .Title}}{{.Title}} - {{end}}{{AppName}}</title>
+	<link rel="icon" href="{{AssetUrlPrefix}}/img/favicon.svg" type="image/svg+xml">
+	{{/* htmx is configured declaratively so the page needs no inline <script> and stays CSP-clean:
+	     "allowEval": false keeps htmx off eval(), the nonce lets it insert scripts in swapped fragments. */}}
+	<meta name="htmx-config" content='{"allowEval":false,"inlineScriptNonce":"{{ctx.CspScriptNonce}}","defaultSettleDelay":0}'>
+	<link rel="stylesheet" href="{{.XBase}}/asset/app.css">
+	{{template "custom/header" .}}
+</head>
+<body>
+	<a class="x-sr-only" href="#x-main">Skip to main content</a>
+	{{template "x/base/navbar" .}}
+	<main class="x-main" id="x-main" role="main">
+		<div class="x-container">
+			{{template "x/base/alert" .}}
+{{end}}
+
+{{define "x/base/head_end"}}
+		</div>
+	</main>
+	<footer class="x-container x-meta" style="padding-bottom:24px">
+		<span>{{AppName}} experimental frontend — Go templates + HTMX + SVG</span>
+		{{if ShowFooterPoweredBy}}
+			· <a target="_blank" href="https://github.com/italiatroller/Teabag">{{ctx.Locale.Tr "powered_by" "Teabag"}}</a>
+		{{end}}
+	</footer>
+	{{template "custom/footer" .}}
+	<script nonce="{{ctx.CspScriptNonce}}" src="{{.XBase}}/asset/htmx.min.js"></script>
+	<script nonce="{{ctx.CspScriptNonce}}" src="{{.XBase}}/asset/app.js"></script>
+</body>
+</html>
+{{end}}

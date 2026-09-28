@@ -1,0 +1,25 @@
+{{template "x/base/head_start" .}}
+	<h1 class="x-page-title">{{xIcon "x-user"}}{{ctx.Locale.Tr "explore.users"}}</h1>
+	<p class="x-meta" style="margin-top:0">{{ctx.Locale.Tr "x.results_count" .Total}}</p>
+
+	<form class="x-toolbar" method="get" action="{{.XBase}}/explore/users"
+		hx-get="{{.XBase}}/explore/users/list"
+		hx-target="#x-list"
+		hx-swap="innerHTML"
+		hx-trigger="input changed delay:300ms, search, submit"
+		hx-indicator="#x-list-indicator">
+		<input type="search" name="q" value="{{.Keyword}}" placeholder="{{ctx.Locale.Tr "x.search_users"}}" aria-label="{{ctx.Locale.Tr "x.search_users"}}" autocomplete="off">
+		<label class="x-sr-only" for="x-sort">{{ctx.Locale.Tr "repo.issues.filter_sort"}}</label>
+		<select id="x-sort" name="sort">
+			<option value="newest" {{if eq .SortType "newest"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.filter_sort.latest"}}</option>
+			<option value="oldest" {{if eq .SortType "oldest"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.filter_sort.oldest"}}</option>
+			<option value="alphabetically" {{if eq .SortType "alphabetically"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.label.filter_sort.alphabetically"}}</option>
+			<option value="reversealphabetically" {{if eq .SortType "reversealphabetically"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.label.filter_sort.reverse_alphabetically"}}</option>
+		</select>
+		<button type="submit" class="x-btn x-btn-primary">{{xIcon "x-search"}}{{ctx.Locale.Tr "x.search"}}</button>
+		<a class="x-btn" href="{{.XBase}}/explore/users">{{ctx.Locale.Tr "filter.clear"}}</a>
+	</form>
+
+	{{template "x/explore/user_list" .}}
+	{{template "x/base/pager" .}}
+{{template "x/base/head_end" .}}

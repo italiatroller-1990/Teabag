@@ -1,0 +1,23 @@
+<nav class="x-navbar" role="navigation" aria-label="{{ctx.Locale.Tr "aria.navbar"}}">
+	<a class="x-brand" href="{{.XBase}}/">
+		{{xIcon "x-repo" 20}}
+		{{AppName}}
+	</a>
+	<a class="x-nav-link" href="{{.XBase}}/explore/repos">{{xIcon "x-search"}}{{ctx.Locale.Tr "explore.repos"}}</a>
+	<a class="x-nav-link" href="{{.XBase}}/explore/users">{{xIcon "x-user"}}{{ctx.Locale.Tr "explore.users"}}</a>
+	<span class="x-spacer"></span>
+	{{if .SignedUser}}
+		<a class="x-row x-meta" href="{{AppSubUrl}}/{{.SignedUser.Name}}">
+			{{ctx.AvatarUtils.Avatar .SignedUser 20}}
+			{{.SignedUser.Name}}
+		</a>
+		<a class="x-nav-link" href="{{AppSubUrl}}/user/settings">{{xIcon "x-settings"}}{{ctx.Locale.Tr "settings"}}</a>
+		<form method="post" action="{{AppSubUrl}}/user/logout">
+			<button type="submit" class="x-btn x-btn-sm">{{xIcon "x-log-out"}}{{ctx.Locale.Tr "sign_out"}}</button>
+		</form>
+	{{else}}
+		<a class="x-nav-link" href="{{AppSubUrl}}/user/login">{{ctx.Locale.Tr "sign_in"}}</a>
+		<a class="x-btn x-btn-sm x-btn-primary" href="{{AppSubUrl}}/user/sign_up">{{ctx.Locale.Tr "register"}}</a>
+	{{end}}
+	<a class="x-nav-link" href="{{AppSubUrl}}/" title="{{ctx.Locale.Tr "x.experimental.classic_ui"}}">{{xIcon "x-arrow-left" 14}}{{ctx.Locale.Tr "x.experimental.classic_ui"}}</a>
+</nav>

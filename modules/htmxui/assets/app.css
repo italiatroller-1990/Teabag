@@ -1,0 +1,230 @@
+/* Teabag experimental frontend — htmxui
+ *
+ * Hand-written CSS: no preprocessor, no Tailwind, no PostCSS, no bundler.
+ * The file is served verbatim from the Go binary (see modules/htmxui).
+ * Colours come from CSS custom properties so light/dark needs no second file.
+ */
+
+:root {
+	color-scheme: light dark;
+	--bg: #f6f8fa;
+	--bg-raised: #fff;
+	--fg: #1f2328;
+	--fg-muted: #59636e;
+	--border: #d1d9e0;
+	--accent: #0969da;
+	--accent-fg: #fff;
+	--success: #1a7f37;
+	--danger: #cf222e;
+	--warning: #9a6700;
+	--radius: 6px;
+	--mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+	--sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #0d1117;
+		--bg-raised: #151b23;
+		--fg: #e6edf3;
+		--fg-muted: #9198a1;
+		--border: #3d444d;
+		--accent: #4493f8;
+		--accent-fg: #0d1117;
+		--success: #3fb950;
+		--danger: #f85149;
+		--warning: #d29922;
+	}
+}
+
+* { box-sizing: border-box; }
+
+body {
+	margin: 0;
+	background: var(--bg);
+	color: var(--fg);
+	font: 14px/1.5 var(--sans);
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code, pre, .mono { font-family: var(--mono); font-size: 12px; }
+
+/* ---------- layout ---------- */
+
+.x-container { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+.x-row { display: flex; gap: 8px; align-items: center; }
+.x-row-wrap { flex-wrap: wrap; }
+.x-spacer { flex: 1; }
+.x-stack { display: flex; flex-direction: column; gap: 12px; }
+
+.x-navbar {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 16px;
+	background: var(--bg-raised);
+	border-bottom: 1px solid var(--border);
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+.x-navbar .x-brand { font-weight: 600; color: var(--fg); }
+.x-navbar a.x-nav-link { color: var(--fg-muted); display: inline-flex; align-items: center; gap: 4px; }
+.x-navbar a.x-nav-link:hover,
+.x-navbar a.x-nav-link[aria-current="page"] { color: var(--fg); text-decoration: none; }
+
+.x-main { padding: 20px 0 48px; }
+.x-page-title { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-size: 20px; }
+.x-breadcrumb { color: var(--fg-muted); font-size: 13px; margin-bottom: 12px; }
+.x-breadcrumb span + span::before { content: "/"; margin: 0 6px; color: var(--border); }
+
+.x-grid { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 800px) { .x-grid { grid-template-columns: minmax(0, 1fr); } .x-sidebar { order: 2; } }
+
+/* ---------- surfaces ---------- */
+
+.x-card {
+	background: var(--bg-raised);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+}
+.x-card-head {
+	display: flex; align-items: center; gap: 8px;
+	padding: 8px 12px;
+	border-bottom: 1px solid var(--border);
+	font-weight: 600;
+}
+.x-card-body { padding: 12px; }
+
+.x-alert { display: flex; gap: 8px; padding: 10px 12px; border-radius: var(--radius); border: 1px solid var(--border); }
+.x-alert-danger { color: var(--danger); border-color: var(--danger); }
+.x-alert-warning { color: var(--warning); border-color: var(--warning); }
+.x-flash { margin-bottom: 12px; }
+.x-flash-success { color: var(--success); border-color: var(--success); }
+.x-flash-info { color: var(--accent); border-color: var(--accent); }
+
+/* ---------- lists ---------- */
+
+.x-list { list-style: none; margin: 0; padding: 0; }
+.x-list > li { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--border); }
+.x-list > li:first-child { border-top: 0; }
+.x-list-title { font-weight: 600; }
+.x-meta { color: var(--fg-muted); font-size: 12px; }
+
+.x-tree { list-style: none; margin: 0; padding: 0; }
+.x-tree .x-tree-item { display: flex; align-items: center; gap: 8px; padding: 5px 12px; border-top: 1px solid var(--border); }
+.x-tree .x-tree-item:first-child { border-top: 0; }
+.x-tree .x-tree-item:hover { background: color-mix(in srgb, var(--fg) 5%, transparent); }
+.x-tree .x-tree-name { font-family: var(--mono); font-size: 13px; }
+.x-tree .x-tree-msg { color: var(--fg-muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.x-tree .x-tree-commit { color: var(--fg-muted); font-family: var(--mono); font-size: 12px; margin-left: auto; white-space: nowrap; }
+
+.x-blame-row { display: flex; gap: 8px; padding: 2px 12px; font-family: var(--mono); font-size: 12px; }
+.x-blame-line { flex: 1; text-align: right; color: var(--fg-muted); user-select: none; }
+.x-blame-code { flex: 3; white-space: pre; overflow-x: auto; }
+.x-blame-commit { flex: 2; color: var(--fg-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.x-blame-group:hover { background: color-mix(in srgb, var(--fg) 5%, transparent); }
+
+/* ---------- forms ---------- */
+
+label { display: block; font-size: 12px; font-weight: 600; color: var(--fg-muted); margin-bottom: 4px; }
+input[type="text"], input[type="search"], input[type="password"], input[type="email"], select, textarea {
+	width: 100%;
+	padding: 5px 10px;
+	font: inherit;
+	color: var(--fg);
+	background: var(--bg-raised);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+}
+input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible, button:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 1px;
+}
+
+.x-btn {
+	display: inline-flex; align-items: center; gap: 6px;
+	padding: 5px 12px;
+	font: inherit;
+	color: var(--fg);
+	background: var(--bg-raised);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	cursor: pointer;
+}
+.x-btn:hover { background: color-mix(in srgb, var(--fg) 8%, var(--bg-raised)); text-decoration: none; }
+.x-btn-primary { color: var(--accent-fg); background: var(--accent); border-color: var(--accent); }
+.x-btn-danger { color: var(--danger); border-color: var(--danger); }
+.x-btn-sm { padding: 2px 8px; font-size: 12px; }
+.x-btn[disabled] { opacity: .5; cursor: not-allowed; }
+
+.x-field { margin-bottom: 12px; }
+.x-field-error { color: var(--danger); font-size: 12px; margin-top: 4px; }
+.x-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.x-toolbar input[type="search"] { max-width: 280px; }
+
+/* ---------- badges ---------- */
+
+.x-badge {
+	display: inline-flex; align-items: center; gap: 4px;
+	padding: 0 8px; height: 22px;
+	font-size: 12px; border-radius: 11px;
+	border: 1px solid var(--border);
+	color: var(--fg-muted);
+}
+.x-badge-success { color: var(--success); border-color: var(--success); }
+.x-badge-danger { color: var(--danger); border-color: var(--danger); }
+.x-badge-accent { color: var(--accent); border-color: var(--accent); }
+.x-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+.x-label { display: inline-flex; align-items: center; padding: 0 8px; height: 20px; border-radius: 10px; font-size: 12px; border: 1px solid var(--border); }
+
+/* ---------- svg icons ---------- */
+
+/* Size comes from the width/height attributes the renderer writes, never from
+ * here, so {{xIcon "x-repo" 20}} really is 20px. */
+.x-icon, svg.svg { fill: currentColor; vertical-align: -3px; flex: none; }
+.x-icon-missing { color: var(--danger); font-family: var(--mono); font-size: 11px; border: 1px dashed var(--danger); padding: 0 3px; }
+
+/* ---------- htmx feedback ---------- */
+
+/* htmx adds these classes around requests; a plain opacity change is the whole
+ * "loading" affordance, which is why no spinner component is needed. */
+.htmx-request { opacity: .6; transition: opacity .1s; }
+.htmx-indicator { display: none; }
+.htmx-request .htmx-indicator { display: inline-flex; }
+.htmx-swapping { opacity: .4; }
+
+.x-swap-fade { animation: x-fade .15s ease-out; }
+@keyframes x-fade { from { opacity: .3; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+	.x-swap-fade { animation: none; }
+	.htmx-request { transition: none; }
+}
+
+.x-sr-only {
+	position: absolute; width: 1px; height: 1px;
+	padding: 0; margin: -1px; overflow: hidden;
+	clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+.x-empty { padding: 32px 12px; text-align: center; color: var(--fg-muted); }
+
+.x-pager { display: flex; gap: 8px; align-items: center; justify-content: center; padding: 12px; }
+
+/* ---------- code view ---------- */
+
+.x-code { margin: 0; padding: 12px; overflow-x: auto; background: var(--bg-raised); border-top: 1px solid var(--border); }
+.x-code .x-code-line { display: flex; }
+.x-code .x-code-num { flex: none; width: 48px; text-align: right; padding-right: 12px; color: var(--fg-muted); user-select: none; }
+.x-code .x-code-text { white-space: pre; }
+
+.x-readme { padding: 16px; background: var(--bg-raised); border-top: 1px solid var(--border); }
+.x-readme h1, .x-readme h2 { border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+.x-readme pre { padding: 12px; background: var(--bg); border-radius: var(--radius); overflow-x: auto; }
+.x-readme code { background: var(--bg); padding: 1px 4px; border-radius: 3px; }
+.x-readme pre code { background: none; padding: 0; }
+.x-readme table { border-collapse: collapse; }
+.x-readme td, .x-readme th { border: 1px solid var(--border); padding: 4px 8px; }

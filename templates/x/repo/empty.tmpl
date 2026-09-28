@@ -1,0 +1,8 @@
+{{template "x/base/head_start" .}}
+	{{template "x/repo/header" .}}
+	<div class="x-card x-card-body" style="margin-top:16px">
+		<h2 class="x-page-title">{{xIcon "x-repo"}}{{ctx.Locale.Tr "repo.empty"}}</h2>
+		<p class="x-meta">{{ctx.Locale.Tr "repo.empty_prompt"}}</p>
+		<a class="x-btn" href="{{.RepoLink}}">{{xIcon "x-arrow-left"}}{{ctx.Locale.Tr "x.back_to_classic_ui"}}</a>
+	</div>
+{{template "x/base/head_end" .}}

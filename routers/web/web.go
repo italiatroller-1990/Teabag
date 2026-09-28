@@ -42,6 +42,7 @@ import (
 	user_setting "gitea.dev/routers/web/user/setting"
 	"gitea.dev/routers/web/user/setting/security"
 	gitea_websocket "gitea.dev/routers/web/websocket"
+	"gitea.dev/routers/web/xhtmx"
 	auth_service "gitea.dev/services/auth"
 	"gitea.dev/services/context"
 	"gitea.dev/services/forms"
@@ -562,6 +563,11 @@ func registerWebRoutes(m *web.Router, webAuth *AuthMiddleware) {
 		}, explore.Code)
 		m.Get("/topics/search", explore.TopicSearch)
 	}, optExploreSignIn)
+
+	// Experimental server-rendered frontend (Go templates + HTMX + SVG).
+	// Additive and mounted under /_x; delete this call and the xhtmx/x_view
+	// packages to remove the experiment.
+	xhtmx.RegisterRoutes(m, optSignIn)
 
 	m.Group("/issues", func() {
 		m.Get("", user.Issues)

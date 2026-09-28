@@ -1,0 +1,17 @@
+{{template "x/base/head_start" .}}
+	<h1 class="x-page-title">{{xIcon "x-home"}}{{if .SignedUser}}{{.SignedUser.Name}}{{else}}{{AppName}}{{end}}</h1>
+	<p class="x-meta" style="margin-top:0">
+		{{ctx.Locale.Tr "x.results_count" .Total}}
+		{{if .SignedUser}}· <a href="{{.XBase}}/explore/repos">{{ctx.Locale.Tr "home.explore_repos"}}</a>{{end}}
+	</p>
+
+	<form class="x-toolbar" method="get" action="{{.XBase}}/explore/repos">
+		<input type="search" name="q" placeholder="{{ctx.Locale.Tr "x.search_repos"}}" aria-label="{{ctx.Locale.Tr "x.search_repos"}}" autocomplete="off">
+		<button type="submit" class="x-btn x-btn-primary">{{xIcon "x-search"}}{{ctx.Locale.Tr "x.search"}}</button>
+		<span class="x-spacer"></span>
+		<a class="x-btn" href="{{.XBase}}/explore/users">{{ctx.Locale.Tr "home.explore_users"}}</a>
+	</form>
+
+	{{template "x/explore/repo_list" .}}
+	{{template "x/base/pager" .}}
+{{template "x/base/head_end" .}}

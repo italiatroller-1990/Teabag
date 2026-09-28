@@ -1,0 +1,13 @@
+{{/* Sidebar file tree. The root level is fetched as an HTML fragment right after
+     the page loads, so the first paint does not wait for the tree. Each folder
+     then loads its own children on expand; the folder name is a normal link to
+     the directory listing, so navigation still works without JavaScript. */}}
+<aside class="x-card" aria-label="{{ctx.Locale.Tr "x.files"}}">
+	<div class="x-card-head">{{xIcon "x-folder"}}{{ctx.Locale.Tr "x.files"}}</div>
+	<div id="x-tree-root"
+		hx-get="{{.XBase}}/{{.Repository.Owner.Name}}/{{.Repository.Name}}/tree-nodes/{{.RefTypeNameSubURL}}"
+		hx-trigger="load"
+		hx-swap="innerHTML">
+		<div class="x-tree-item x-meta" aria-live="polite">{{ctx.Locale.Tr "x.loading"}}</div>
+	</div>
+</aside>
