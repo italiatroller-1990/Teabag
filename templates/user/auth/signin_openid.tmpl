@@ -9,7 +9,7 @@
 			<div class="ui container fluid">
 				{{template "base/alert" .}}
 				<h4 class="ui top attached header center">
-					{{svg "fontawesome-openid"}}
+					{{svg "octicon-key"}}
 					OpenID
 				</h4>
 				<div class="ui attached segment">
@@ -19,7 +19,7 @@
 						</div>
 						<div class="required field {{if .Err_OpenID}}error{{end}}">
 							<label for="openid">
-							{{svg "fontawesome-openid"}}
+							{{svg "octicon-key"}}
 							OpenID URI
 							</label>
 							<input id="openid" name="openid" value="{{.openid}}" autofocus required>

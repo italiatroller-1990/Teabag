@@ -6,7 +6,7 @@
 	{{end}}
 	{{if .EnableOpenIDSignIn}}
 		<a class="ui button external-login-link tw-gap-3" data-require-appurl-check="true" rel="nofollow" href="{{AppSubUrl}}/user/login/openid">
-			{{svg "fontawesome-openid" 24}} {{ctx.Locale.Tr "sign_in_with_provider" "OpenID"}}
+			{{svg "octicon-key" 24}} {{ctx.Locale.Tr "sign_in_with_provider" "OpenID"}}
 		</a>
 	{{end}}
 </div>
