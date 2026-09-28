@@ -1,19 +1,24 @@
-{{/* One directory level of the file tree. */}}
+{{/* One directory level of the file tree, rendered as an HTML fragment.
+
+     A directory owns an always-present (empty) child <ul> so the expand button
+     has a stable target: with JavaScript the click fills it in place, without
+     it the directory name is a plain link to the directory listing. */}}
 <ul class="x-tree" data-x-path="{{.XTreePath}}">
-	{{range .XTreeNodes}}
+	{{range $i, $node := .XTreeNodes}}
 		<li class="x-tree-item">
-			{{if .IsDir}}
+			{{if $node.IsDir}}
 				<button type="button" class="x-btn x-btn-sm" style="border:0;background:none;padding:0"
-					hx-get="{{.ChildrenURL}}"
-					hx-target="closest li > ul"
-					hx-swap="beforeend"
-					hx-indicator="closest li">
+					aria-label="{{ctx.Locale.Tr "x.expand_folder"}}"
+					hx-get="{{$node.ChildrenURL}}"
+					hx-target="#x-tree-{{$i}}"
+					hx-swap="innerHTML">
 					{{xIcon "x-chevron-right" 12}}{{xIcon "x-folder"}}
 				</button>
-				<a class="x-tree-name" href="{{$.XRepoLink}}/src/branch/{{$.RefFullName.ShortName}}/{{PathEscapeSegments .Path}}">{{.Name}}</a>
+				<a class="x-tree-name" href="{{$.XRepoLink}}/src/branch/{{$.RefFullName.ShortName}}/{{PathEscapeSegments $node.Path}}">{{$node.Name}}</a>
+				<ul class="x-tree" id="x-tree-{{$i}}"></ul>
 			{{else}}
 				{{xIcon "x-file"}}
-				<a class="x-tree-name" href="{{$.XRepoLink}}/src/branch/{{$.RefFullName.ShortName}}/{{PathEscapeSegments .Path}}">{{.Name}}</a>
+				<a class="x-tree-name" href="{{$.XRepoLink}}/src/branch/{{$.RefFullName.ShortName}}/{{PathEscapeSegments $node.Path}}">{{$node.Name}}</a>
 			{{end}}
 		</li>
 	{{else}}

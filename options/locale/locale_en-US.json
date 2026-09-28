@@ -3989,5 +3989,6 @@
   "x.search_users": "Search users",
   "x.sort": "Sort",
   "x.state": "State",
-  "x.unavailable": "This view is not available in the experimental UI yet."
+  "x.unavailable": "This view is not available in the experimental UI yet.",
+  "x.expand_folder": "Expand folder"
 }
