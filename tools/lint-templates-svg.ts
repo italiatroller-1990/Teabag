@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import {readdirSync, readFileSync, globSync} from 'node:fs';
+import {existsSync, readdirSync, readFileSync, globSync} from 'node:fs';
 import {parse, relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {exit} from 'node:process';
@@ -9,12 +9,23 @@ for (const file of readdirSync(new URL('../public/assets/img/svg', import.meta.u
   knownSvgs.add(parse(file).name);
 }
 
+// Experimental frontend icons are embedded in the binary rather than generated
+// into public/assets, so they live in their own directory. Absent when the
+// experiment has not been applied.
+const htmxIconDir = new URL('../modules/htmxui/assets/icons', import.meta.url);
+if (existsSync(htmxIconDir)) {
+  for (const file of readdirSync(htmxIconDir)) {
+    knownSvgs.add(parse(file).name);
+  }
+}
+
 const rootPath = fileURLToPath(new URL('..', import.meta.url));
 let hadErrors = false;
 
 for (const file of globSync(fileURLToPath(new URL('../templates/**/*.tmpl', import.meta.url)))) {
   const content = readFileSync(file, 'utf8');
-  for (const [_, name] of content.matchAll(/svg ["'`]([^"'`]+)["'`]/g)) {
+  // "{{svg "name"}}" and the experimental "{{xIcon "name"}}"
+  for (const [_, name] of content.matchAll(/(?:svg|xIcon) ["'`]([^"'`]+)["'`]/g)) {
     if (!knownSvgs.has(name)) {
       console.info(`SVG "${name}" not found, used in ${relative(rootPath, file)}`);
       hadErrors = true;

@@ -174,7 +174,7 @@ The rule is simple:
 
 A smaller codebase is useful when it is smaller because unnecessary complexity was removed—not because functionality was arbitrarily sacrificed.
 
-See the [Optimization Baseline](optimization-baseline.md) and the [Frontend Optimization Audit](frontend-optimization-audit.md).
+See the [Optimization Baseline](optimization-baseline.md), the [Frontend Optimization Audit](frontend-optimization-audit.md) and the [HTMX Frontend Experiment](frontend-htmx-experiment.md).
 
 ---
 

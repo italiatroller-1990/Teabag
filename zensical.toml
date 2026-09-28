@@ -33,6 +33,7 @@ nav = [
       { "Optimization Baseline" = "optimization-baseline.md" },
       { "Backend & Auth Audit" = "optimization-audit.md" },
       { "Frontend Optimization Audit" = "frontend-optimization-audit.md" },
+      { "HTMX Frontend Experiment" = "frontend-htmx-experiment.md" },
   ]},
   { "Community" = [
       { "Contributing Guidelines" = "contributing.md" },
