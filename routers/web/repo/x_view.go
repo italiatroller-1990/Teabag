@@ -26,6 +26,10 @@ import (
 	"gitea.dev/services/context"
 )
 
+// XBase is the path prefix the experimental frontend is mounted at. Templates
+// build every link from it, so the experiment can move without touching markup.
+const XBase = "/_x"
+
 const (
 	tplXRepoHome  templates.TplName = "x/repo/home"
 	tplXRepoDir   templates.TplName = "x/repo/dir"
@@ -41,11 +45,6 @@ const (
 func xSetCommon(ctx *context.Context, title any) {
 	ctx.Data["Title"] = title
 	xSetBase(ctx)
-	// The production templates link through ctx.Repo.RepoLink, which points at
-	// the classic UI. The experimental pages need their own base so a single
-	// click never leaves the experiment.
-	ctx.Data["XRepoLink"] = XBase + ctx.Repo.RepoLink
-	ctx.Data["XCloneAddr"] = xCloneAddr(ctx)
 	prepareRepoViewContent(ctx, ctx.Repo.RefTypeNameSubURL())
 	// prepareRepoViewContent derives the tree links from the production repo
 	// link, so they are rewritten to stay inside the experiment
@@ -57,8 +56,11 @@ func xSetCommon(ctx *context.Context, title any) {
 	}
 }
 
-// xSetBase fills the two values every experimental repository template needs to
-// build a link, without doing any of the heavier view preparation.
+// xSetBase fills the values every experimental repository template needs to
+// build a link, without doing any of the heavier view preparation. The
+// production templates link through ctx.Repo.RepoLink, which points at the
+// classic UI; the experimental pages need their own base so a single click
+// never leaves the experiment.
 func xSetBase(ctx *context.Context) {
 	ctx.Data["XBase"] = XBase
 	if ctx.Repo.Repository != nil {
@@ -75,10 +77,6 @@ func xCloneAddr(ctx *context.Context) string {
 	}
 	return cloneLink.HTTPS
 }
-
-// XBase is the path prefix the experimental frontend is mounted at. Templates
-// build every link from it, so the experiment can move without touching markup.
-const XBase = "/_x"
 
 // XHome renders the experimental repository home, directory or file view. The
 // three cases share one handler because the underlying preparation is the same
@@ -262,7 +260,6 @@ func XIssues(ctx *context.Context) {
 		return
 	}
 
-	ctx.Data["XQuery"] = ctx.Req.URL.RawQuery
 	ctx.HTML(http.StatusOK, tplXIssues)
 }
 

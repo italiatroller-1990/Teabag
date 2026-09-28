@@ -107,7 +107,7 @@ are what this branch implements; steps 5+ are what a real migration would need.
 * `htmx.min.js` — htmx 2.0.11, vendored verbatim, 0BSD (52 182 bytes)
 * `app.css` — hand-written, 9 120 bytes, no preprocessor
 * `app.js` — 1 368 bytes, copy-to-clipboard only
-* `icons/x-*.svg` — 43 hand-authored icons, 16 164 bytes total
+* `icons/x-*.svg` — 44 hand-authored icons, 16 565 bytes total
 
 Served by `AssetHandler()` with a content-type allow-list, an ETag derived from
 the asset name (the embedded tree is immutable for a given binary) and
@@ -166,7 +166,7 @@ then delete the `iife`/`external-render-helper` split in `vite.config.ts` and
 the proxy in `modules/public/vitedev.go`, and fold the remaining imperative
 TypeScript into templates one page at a time. `@primer/octicons` can only be
 dropped after the 385 generated `octicon-*.svg` files are replaced, which is
-what the 43-icon internal set in step 1 is a first cut at.
+what the 44-icon internal set in step 1 is a first cut at.
 
 ---
 
@@ -247,7 +247,7 @@ delta       +139 264 bytes  (+0.12%)
 ```
 
 That 139 KB is the entire experimental frontend: htmx, the stylesheet, the
-vanilla JS, 43 icons, 22 templates and the handler.
+vanilla JS, 44 icons, 28 templates and the handler.
 
 ### 3.5 CI
 

@@ -31,9 +31,13 @@ import (
 )
 
 const (
-	tplHome  templates.TplName = "x/home"
-	tplRepos templates.TplName = "x/explore/repos"
-	tplUsers templates.TplName = "x/explore/users"
+	tplHome templates.TplName = "x/home"
+	// each list page has a matching "_list" fragment for HTMX; both render the
+	// same partial, so the only difference is the surrounding layout
+	tplRepos     templates.TplName = "x/explore/repos"
+	tplReposList templates.TplName = "x/explore/repos_list"
+	tplUsers     templates.TplName = "x/explore/users"
+	tplUsersList templates.TplName = "x/explore/users_list"
 )
 
 // RegisterRoutes mounts the experimental frontend under /_x. The router it is
@@ -72,9 +76,11 @@ func repoRoutes(m *web.Router, optSignIn func(*context.Context)) {
 	}, reqRepoRead)
 }
 
+// reqRepoRead keeps the experimental repository pages read-only. Every route in
+// the group is a GET today; this makes adding a write route a deliberate act,
+// because writes have to go through the production handlers to keep their
+// permission and cross-origin checks.
 func reqRepoRead(ctx *context.Context) {
-	// the experimental frontend is read-only; anything that writes still goes
-	// through the production routes and their CSRF/origin protection
 	if ctx.Req.Method != http.MethodGet && ctx.Req.Method != http.MethodHead {
 		ctx.HTTPError(http.StatusMethodNotAllowed)
 	}
@@ -86,9 +92,6 @@ func reqRepoRead(ctx *context.Context) {
 func Home(ctx *context.Context) {
 	ctx.Data["Title"] = ctx.Locale.TrString("home")
 	ctx.Data["XBase"] = repo.XBase
-	if ctx.Doer != nil {
-		ctx.Data["XDoer"] = ctx.Doer
-	}
 	explore.RenderRepoSearch(ctx, &explore.RepoSearchOptions{
 		PageSize:         setting.UI.ExplorePagingNum,
 		OwnerID:          xHomeOwnerID(ctx),
@@ -114,7 +117,7 @@ func Repos(ctx *context.Context) {
 
 // ReposList is the HTMX fragment behind the search box: same query, rows only.
 func ReposList(ctx *context.Context) {
-	xRenderRepoSearch(ctx, tplRepos+"_list")
+	xRenderRepoSearch(ctx, tplReposList)
 }
 
 func xRenderRepoSearch(ctx *context.Context, tpl templates.TplName) {
@@ -144,7 +147,7 @@ func Users(ctx *context.Context) {
 
 // UsersList is the HTMX fragment behind the user search box.
 func UsersList(ctx *context.Context) {
-	xRenderUserSearch(ctx, tplUsers+"_list")
+	xRenderUserSearch(ctx, tplUsersList)
 }
 
 func xRenderUserSearch(ctx *context.Context, tpl templates.TplName) {
