@@ -492,6 +492,13 @@ build: frontend backend ## build everything
 .PHONY: frontend
 frontend: $(FRONTEND_DEST) ## build frontend files
 
+# The experimental frontend (branch: experiment/htmx-frontend) is served straight
+# from the Go binary via go:embed, so it has no build step. This target exists to
+# state that, and to fail loudly if that ever stops being true.
+.PHONY: frontend-htmx
+frontend-htmx: ## build the experimental frontend (no-op: assets are embedded)
+	@$(GO) test ./modules/htmxui/ ./modules/templates/
+
 .PHONY: backend
 backend: generate-backend $(EXECUTABLE) ## build backend files
 

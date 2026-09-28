@@ -49,8 +49,12 @@ func xSetCommon(ctx *context.Context, title any) {
 	prepareRepoViewContent(ctx, ctx.Repo.RefTypeNameSubURL())
 	// prepareRepoViewContent derives the tree links from the production repo
 	// link, so they are rewritten to stay inside the experiment
-	ctx.Data["TreeLink"] = xLink(ctx, ctx.Data["TreeLink"].(string))
-	ctx.Data["BranchLink"] = xLink(ctx, ctx.Data["BranchLink"].(string))
+	if treeLink, ok := ctx.Data["TreeLink"].(string); ok {
+		ctx.Data["TreeLink"] = XBase + treeLink
+	}
+	if branchLink, ok := ctx.Data["BranchLink"].(string); ok {
+		ctx.Data["BranchLink"] = XBase + branchLink
+	}
 }
 
 // xSetBase fills the two values every experimental repository template needs to
@@ -61,14 +65,6 @@ func xSetBase(ctx *context.Context) {
 		ctx.Data["XRepoLink"] = XBase + ctx.Repo.RepoLink
 		ctx.Data["XCloneAddr"] = xCloneAddr(ctx)
 	}
-}
-
-// xLink rewrites a production repository link onto the experimental base.
-func xLink(ctx *context.Context, link string) string {
-	if link == "" {
-		return link
-	}
-	return XBase + link
 }
 
 // xCloneAddr returns the HTTPS clone URL, or an empty string when there is none.
@@ -231,7 +227,7 @@ func XBlame(ctx *context.Context) {
 	blob := entry.Blob(ctx.Repo.GitRepo)
 	ctx.Data["FileSize"] = blob.Size(ctx)
 
-	if ctx.Data["FileSize"].(int64) >= setting.UI.MaxDisplayFileSize {
+	if fileSize, ok := ctx.Data["FileSize"].(int64); ok && fileSize >= setting.UI.MaxDisplayFileSize {
 		ctx.Data["IsFileTooLarge"] = true
 		ctx.HTML(http.StatusOK, tplXBlame)
 		return

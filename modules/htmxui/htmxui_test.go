@@ -4,7 +4,6 @@
 package htmxui
 
 import (
-	"html/template"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -53,7 +52,7 @@ func TestRenderHTMLEmptyName(t *testing.T) {
 
 func TestRenderHTMLIsCached(t *testing.T) {
 	// the second call must come from the cache and still be correct
-	first := RenderHTML("x-star", 24)
-	second := RenderHTML("x-star", 24)
-	assert.Equal(t, template.HTML(first), second)
+	first := RenderHTML("x-repo-starred", 24)
+	second := RenderHTML("x-repo-starred", 24)
+	assert.Equal(t, first, second)
 }

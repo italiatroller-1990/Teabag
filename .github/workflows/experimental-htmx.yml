@@ -1,0 +1,53 @@
+name: experimental-htmx
+
+# Experiment only (branch: experiment/htmx-frontend).
+#
+# The point of this workflow is what it does NOT do: no node-setup, no pnpm
+# store, no `make deps-frontend`, no `make frontend`, no Playwright. The
+# experimental frontend is embedded in the Go binary, so a plain Go toolchain is
+# enough to build and test it. It also reuses the existing go-setup/go-cache
+# actions, so nothing heavyweight is added to CI.
+
+on:
+  push:
+    branches:
+      - experiment/htmx-frontend
+  pull_request:
+    branches:
+      - experiment/htmx-frontend
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: go-only build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: ./.github/actions/go-setup
+
+      - name: Build the experimental frontend
+        run: make frontend-htmx
+
+      - name: Unit tests
+        run: go test ./modules/htmxui/ ./modules/templates/ ./modules/svg/
+
+      - name: Integration tests for /_x
+        env:
+          GITEA_TEST_DATABASE: sqlite
+        run: go test -count=1 -run 'TestXHtmx' ./tests/integration/
+
+      - name: Build the binary without the classic UI assets
+        # no `bindata` tag and no `make frontend`: the experiment's assets come
+        # from go:embed, so the Go build alone is enough to produce a working
+        # experimental frontend
+        run: go build -ldflags '-s -w' -o /tmp/teabag .
+        env:
+          CGO_ENABLED: '0'
