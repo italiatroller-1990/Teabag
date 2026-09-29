@@ -1,0 +1,123 @@
+name: release-nightly-htmx
+
+# Experiment only (branch: experiment/htmx-frontend): the container images the
+# main branch publishes nightly, for the experiment, so it can be run from the
+# registry instead of a locally built binary. Regular and rootless images,
+# amd64 and arm64, merged into multi-arch manifests — release-nightly's
+# nightly-container and merge-manifests jobs with the trigger and the tag moved
+# to this branch. Images are published on pushes only, never for pull requests.
+
+on:
+  push:
+    branches: [experiment/htmx-frontend]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  nightly-container:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            arch: amd64
+          - platform: linux/arm64
+            arch: arm64
+
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - run: git fetch --unshallow --quiet --tags --force
+
+      - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+        with:
+          cache-image: false
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Get cleaned branch name
+        id: clean_name
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          # the tag may not contain a slash, and the branch is called
+          # "experiment/…", so the separator becomes part of the name
+          REF_NAME=$(echo "$REF" | sed -e 's/refs\/heads\///' -e 's/refs\/tags\///' -e 's/release\/v//' -e 's/\//-/g')
+          echo "branch=${REF_NAME}-nightly" >> "$GITHUB_OUTPUT"
+
+      - name: Login to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build regular image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          platforms: ${{ matrix.platform }}
+          push: true
+          tags: ghcr.io/italiatroller-1990/teabag:${{ steps.clean_name.outputs.branch }}-${{ matrix.arch }}
+          cache-from: type=registry,ref=ghcr.io/italiatroller-1990/teabag:buildcache-rootful-${{ matrix.arch }}
+          cache-to: type=registry,ref=ghcr.io/italiatroller-1990/teabag:buildcache-rootful-${{ matrix.arch }},mode=max
+
+      - name: Build rootless image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          platforms: ${{ matrix.platform }}
+          push: true
+          file: Dockerfile.rootless
+          tags: ghcr.io/italiatroller-1990/teabag:${{ steps.clean_name.outputs.branch }}-rootless-${{ matrix.arch }}
+          cache-from: type=registry,ref=ghcr.io/italiatroller-1990/teabag:buildcache-rootless-${{ matrix.arch }}
+          cache-to: type=registry,ref=ghcr.io/italiatroller-1990/teabag:buildcache-rootless-${{ matrix.arch }},mode=max
+
+  merge-manifests:
+    needs: nightly-container
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Get cleaned branch name
+        id: clean_name
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          REF_NAME=$(echo "$REF" | sed -e 's/refs\/heads\///' -e 's/refs\/tags\///' -e 's/release\/v//' -e 's/\//-/g')
+          echo "branch=${REF_NAME}-nightly" >> "$GITHUB_OUTPUT"
+
+      - name: Login to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create regular multi-arch manifest
+        run: |
+          docker buildx imagetools create \
+            --tag ghcr.io/italiatroller-1990/teabag:${{ steps.clean_name.outputs.branch }} \
+            ghcr.io/italiatroller-1990/teabag:${{ steps.clean_name.outputs.branch }}-amd64 \
+            ghcr.io/italiatroller-1990/teabag:${{ steps.clean_name.outputs.branch }}-arm64
+
+      - name: Create rootless multi-arch manifest
+        run: |
+          docker buildx imagetools create \
+            --tag ghcr.io/italiatroller-1990/teabag:${{ steps.clean_name.outputs.branch }}-rootless \
+            ghcr.io/italiatroller-1990/teabag:${{ steps.clean_name.outputs.branch }}-rootless-amd64 \
+            ghcr.io/italiatroller-1990/teabag:${{ steps.clean_name.outputs.branch }}-rootless-arm64
