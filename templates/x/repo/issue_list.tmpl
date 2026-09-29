@@ -10,14 +10,15 @@
 					<a class="x-list-title" href="{{$.XRepoLink}}/issues/{{.Index}}">{{.Title}}</a>
 					<span class="x-spacer"></span>
 					{{if .IsClosed}}
-						<span class="x-badge">{{ctx.Locale.Tr "repo.issues.closed"}}</span>
+						<span class="x-badge">{{ctx.Locale.Tr "repo.issues.closed_title"}}</span>
 					{{else}}
-						<span class="x-badge x-badge-success">{{ctx.Locale.Tr "repo.issues.open"}}</span>
+						<span class="x-badge x-badge-success">{{ctx.Locale.Tr "repo.issues.open_title"}}</span>
 					{{end}}
 					{{if .IsPull}}
 						<span class="x-badge x-badge-accent">{{xIcon "x-git-pull-request" 12}}{{ctx.Locale.Tr "repo.pulls"}}</span>
 					{{end}}
-					<span class="x-meta">{{ctx.AvatarUtils.Avatar .Poster 20}} {{.Poster.Name}}</span>
+					{{range .Labels}}<span class="x-label"{{if .Color}} style="border-color: {{.Color}}; color: {{.Color}}"{{end}}>{{.Name}}</span>{{end}}
+					<span class="x-meta">{{ctx.AvatarUtils.Avatar .Poster 20}} {{.Poster.DisplayName}}</span>
 					<span class="x-meta">{{DateUtils.TimeSince .UpdatedUnix}}</span>
 				</li>
 			{{end}}

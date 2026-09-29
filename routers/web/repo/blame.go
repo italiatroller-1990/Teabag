@@ -29,6 +29,7 @@ type blameRow struct {
 
 	PreviousSha    string
 	PreviousShaURL string
+	CommitSha      string
 	CommitURL      string
 	CommitMessage  string
 	CommitSince    template.HTML
@@ -228,6 +229,7 @@ func renderBlameFillFirstBlameRow(ctx *context.Context, repoLink string, part *g
 	br.AvatarStackData = gituser.BuildAvatarStackData(ctx, commit.GitCommit.AllAuthorIdentities(), nil)
 	br.PreviousSha = part.PreviousSha
 	br.PreviousShaURL = fmt.Sprintf("%s/blame/commit/%s/%s", repoLink, url.PathEscape(part.PreviousSha), util.PathEscapeSegments(part.PreviousPath))
+	br.CommitSha = part.Sha
 	br.CommitURL = fmt.Sprintf("%s/commit/%s", repoLink, url.PathEscape(part.Sha))
 	br.CommitMessage = commit.GitCommit.MessageUTF8()
 	br.CommitSince = templates.TimeSince(commit.GitCommit.Author.When)

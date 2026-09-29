@@ -1,17 +1,20 @@
 {{template "x/base/head_start" .}}
 	<h1 class="x-page-title">{{xIcon "x-home"}}{{if .SignedUser}}{{.SignedUser.Name}}{{else}}{{AppName}}{{end}}</h1>
-	<p class="x-meta" style="margin-top:0">
+	<p class="x-meta x-mt-0">
 		{{ctx.Locale.Tr "x.results_count" .Total}}
 		{{if .SignedUser}}· <a href="{{.XBase}}/explore/repos">{{ctx.Locale.Tr "home.explore_repos"}}</a>{{end}}
 	</p>
 
+	{{/* the search box submits to the explore page, so the two pages share one
+	     search path; it is a plain GET form, so it works without JavaScript */}}
 	<form class="x-toolbar" method="get" action="{{.XBase}}/explore/repos">
-		<input type="search" name="q" placeholder="{{ctx.Locale.Tr "x.search_repos"}}" aria-label="{{ctx.Locale.Tr "x.search_repos"}}" autocomplete="off">
+		<label class="x-sr-only" for="x-home-search">{{ctx.Locale.Tr "x.search_repos"}}</label>
+		<input id="x-home-search" type="search" name="q" placeholder="{{ctx.Locale.Tr "x.search_repos"}}" autocomplete="off">
 		<button type="submit" class="x-btn x-btn-primary">{{xIcon "x-search"}}{{ctx.Locale.Tr "x.search"}}</button>
 		<span class="x-spacer"></span>
 		<a class="x-btn" href="{{.XBase}}/explore/users">{{ctx.Locale.Tr "home.explore_users"}}</a>
 	</form>
 
 	{{template "x/explore/repo_list" .}}
-	{{template "x/base/pager" .}}
+	<div id="x-pager">{{template "x/base/pager" dict "Page" .Page "Target" "x-list" "Fragment" (print .XBase "/explore/repos/list") "Indicator" "x-list-indicator"}}</div>
 {{template "x/base/head_end" .}}

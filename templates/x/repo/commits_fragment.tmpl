@@ -1,0 +1,4 @@
+{{/* HTMX fragment for the commits pager: the commit rows plus the pager
+     re-rendered for the new page out-of-band into #x-pager. */}}
+{{template "x/repo/commits_list" .}}
+<div id="x-pager" hx-swap-oob="outerHTML">{{template "x/repo/commit_pager" .}}</div>

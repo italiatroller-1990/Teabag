@@ -1,8 +1,11 @@
 {{template "x/base/head_start" .}}
 	{{template "x/repo/header" .}}
-	<div class="x-grid" style="margin-top:16px">
+	<div class="x-grid x-mt-4">
 		<div>{{template "x/repo/tree" .}}</div>
 		<div>
+			{{/* the README carries its own heading, so the page heading is for
+			     assistive technology only */}}
+			<h1 class="x-sr-only">{{.Repository.Owner.Name}}/{{.Repository.Name}}</h1>
 			{{template "x/repo/breadcrumb" .}}
 			{{template "x/repo/filter" .}}
 			{{template "x/repo/file_list" .}}

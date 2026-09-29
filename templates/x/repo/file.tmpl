@@ -1,42 +1,49 @@
 {{/* A single file. The same partial is reused for the README shown on the
      repository home page, so the rendering path is identical. */}}
-<div class="x-card" style="margin-top:12px">
+<div class="x-card x-mt-3">
 	<div class="x-card-head">
 		{{if .IsViewFile}}{{xIcon "x-file-code"}}{{.FileTreePath}}{{else}}{{xIcon "x-book"}}{{.FileTreePath}}{{end}}
 		<span class="x-spacer"></span>
 		{{if .IsViewFile}}
 			{{if .FileSize}}<span class="x-meta">{{FormatByteSize .FileSize}}</span>{{end}}
 			{{if .IsRepresentableAsText}}
-				<a class="x-btn x-btn-sm" href="{{.XRepoLink}}/blame/branch/{{.RefFullName.ShortName}}/{{PathEscapeSegments .TreePath}}">
+				<a class="x-btn x-btn-sm" href="{{.XRepoLink}}/blame/{{.RefTypeNameSubURL}}/{{PathEscapeSegments .TreePath}}">
 					{{xIcon "x-eye"}}{{ctx.Locale.Tr "repo.blame"}}
 				</a>
 			{{end}}
+			{{/* the raw file is served by the production route: it is a file
+			     download, not a page, so there is nothing to re-implement */}}
 			<a class="x-btn x-btn-sm" href="{{.RawFileLink}}">{{xIcon "x-download"}}{{ctx.Locale.Tr "repo.file_raw"}}</a>
 		{{end}}
 	</div>
-	{{if .FileError}}<div class="x-alert x-alert-danger x-card-body">{{xIcon "x-alert"}}{{.FileError}}</div>{{end}}
-	{{if .FileWarning}}<div class="x-alert x-alert-warning x-card-body">{{xIcon "x-alert"}}{{.FileWarning}}</div>{{end}}
+	{{if .FileError}}<div class="x-alert x-alert-danger x-card-body" role="alert">{{xIcon "x-alert"}}{{.FileError}}</div>{{end}}
+	{{if .FileWarning}}<div class="x-alert x-alert-warning x-card-body" role="alert">{{xIcon "x-alert"}}{{.FileWarning}}</div>{{end}}
 	{{if .IsFileTooLarge}}
 		<div class="x-empty">{{xIcon "x-alert" 24}} {{ctx.Locale.Tr "repo.file_too_large"}}</div>
 	{{else if not .FileSize}}
 		<div class="x-empty">{{ctx.Locale.Tr "repo.file_is_empty"}}</div>
 	{{else if .IsImageFile}}
-		<div class="x-card-body x-code" style="text-align:center"><img src="{{.RawFileLink}}" alt="{{.FileTreePath}}"></div>
+		<div class="x-card-body x-image"><img src="{{.RawFileLink}}" alt="{{.FileTreePath}}"></div>
 	{{else if .RenderAsMarkup}}
 		<article class="x-readme">{{.FileContent}}</article>
 	{{else if .IsPlainText}}
 		<pre class="x-code">{{.FileContent}}</pre>
 	{{else if .FileContent}}
-		<div class="x-code">
+		{{/* a table, not a pile of divs: line numbers and code are columns, and
+		     a screen reader can associate them per row */}}
+		<table class="x-code">
+			<caption class="x-sr-only">{{.FileTreePath}}</caption>
+			<tbody>
 			{{range $idx, $code := .FileContent}}
 				{{$line := Eval $idx "+" 1}}
-				<div class="x-code-line" id="L{{$line}}">
-					<span class="x-code-num">{{$line}}</span>
-					<span class="x-code-text">{{$code}}</span>
-				</div>
+				<tr id="L{{$line}}">
+					<th scope="row" class="x-code-num"><a href="#L{{$line}}">{{$line}}</a></th>
+					<td class="x-code-text">{{$code}}</td>
+				</tr>
 			{{end}}
-		</div>
+			</tbody>
+		</table>
 	{{else}}
-		<div class="x-empty">{{xIcon "x-file" 24}} {{ctx.Locale.Tr "repo.file_view_unavailable"}}</div>
+		<div class="x-empty">{{xIcon "x-file" 24}} {{ctx.Locale.Tr "x.file_view_unavailable"}}</div>
 	{{end}}
 </div>

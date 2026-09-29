@@ -696,8 +696,22 @@ func repoAssignmentPrepareTemplateData(ctx *Context, data *repoAssignmentPrepare
 	}
 }
 
-func repoAssignmentIsHomeOrSettings(ctx *Context, data *repoAssignmentPrepareDataStruct) bool {
+// repoAssignmentHomeLink is the repository home as the current frontend
+// renders it: the plain link for the classic pages, the same link behind the
+// mount prefix for one mounted under a sub-path (the /_x experiment).
+// Comparing by suffix instead would classify every link that happens to end in
+// the repository link, classic routes included, as an experimental one, so the
+// prefix has to be known rather than guessed.
+func repoAssignmentHomeLink(ctx *Context, data *repoAssignmentPrepareDataStruct) string {
 	repoLink := data.repo.Link()
+	if basePath, ok := ctx.Data[FrontendBasePathKey].(string); ok {
+		return basePath + strings.TrimPrefix(repoLink, setting.AppSubURL)
+	}
+	return repoLink
+}
+
+func repoAssignmentIsHomeOrSettings(ctx *Context, data *repoAssignmentPrepareDataStruct) bool {
+	repoLink := repoAssignmentHomeLink(ctx, data)
 	return ctx.Link == repoLink ||
 		strings.HasPrefix(ctx.Link+"/", repoLink+"/settings/") ||
 		ctx.Link == repoLink+"/-/migrate/status"
@@ -707,7 +721,9 @@ func repoAssignmentAutoRedirectNotReady(ctx *Context, data *repoAssignmentPrepar
 	// Disable everything when the repo is being created
 	if ctx.Repo.Repository.IsBeingCreated() || ctx.Repo.Repository.IsBroken() {
 		if !repoAssignmentIsHomeOrSettings(ctx, data) {
-			ctx.Redirect(ctx.Repo.RepoLink)
+			// redirect within the frontend the reader is reading, so a click
+			// made while an import runs does not drop them out of it
+			ctx.Redirect(repoAssignmentHomeLink(ctx, data))
 		}
 		return
 	}
@@ -729,7 +745,7 @@ func repoAssignmentPrepareGitRepo(ctx *Context, data *repoAssignmentPrepareDataS
 			ctx.Repo.Repository.MarkAsBrokenEmpty()
 			// Only allow access to base of repo or settings
 			if !repoAssignmentIsHomeOrSettings(ctx, data) {
-				ctx.Redirect(ctx.Repo.RepoLink)
+				ctx.Redirect(repoAssignmentHomeLink(ctx, data))
 			}
 			return
 		}

@@ -4,6 +4,7 @@
     "${configDir}/.*",
     "${configDir}/tests/e2e/**/*",
     "${configDir}/tests/e2e/**/.*",
+    "${configDir}/modules/htmxui/**/*",
     "${configDir}/tools/**/*",
     "${configDir}/tools/**/.*",
     "${configDir}/web_src/js/**/*",

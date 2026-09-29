@@ -1,0 +1,18 @@
+{{/* The experimental error page. It is registered through
+     services/context.ErrorTplNameKey so a 404 or a 500 inside /_x never falls
+     back to the classic layout and its whole JavaScript bundle. */}}
+{{template "x/base/head_start" .}}
+	<div class="x-card x-card-body x-error">
+		<h1 class="x-page-title">{{xIcon "x-alert" 24}}{{.Title}}</h1>
+		{{/* ErrorMsg is only ever set to a value that is safe to show, see
+		     services/context.buildUserErrorMessage */}}
+		{{if .ErrorMsg}}<p class="x-meta">{{.ErrorMsg}}</p>{{end}}
+		<p class="x-meta">{{ctx.Locale.Tr "x.error_prompt"}}</p>
+		<p class="x-row">
+			<a class="x-btn x-btn-primary" href="{{.XBase}}/">{{xIcon "x-home"}}{{ctx.Locale.Tr "x.home"}}</a>
+			{{/* the classic UI is the only frontend that can serve the pages the
+			     experiment does not implement yet (search, admin, settings…) */}}
+			<a class="x-btn" href="{{AppSubUrl}}/">{{xIcon "x-arrow-left"}}{{ctx.Locale.Tr "x.experimental.classic_ui"}}</a>
+		</p>
+	</div>
+{{template "x/base/head_end" .}}

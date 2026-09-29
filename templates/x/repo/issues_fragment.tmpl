@@ -1,0 +1,4 @@
+{{/* HTMX fragment for the issue list: the issue rows plus the pager
+     re-rendered for the new page out-of-band into #x-pager. */}}
+{{template "x/repo/issue_list" .}}
+<div id="x-pager" hx-swap-oob="outerHTML">{{template "x/base/pager" dict "Page" .Page "Target" "x-issue-list" "Fragment" (print .XRepoLink "/issues/list") "Indicator" "x-issue-indicator"}}</div>

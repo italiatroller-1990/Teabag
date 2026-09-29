@@ -1,38 +1,13 @@
 {{template "x/base/head_start" .}}
 	{{template "x/repo/header" .}}
-	<div style="margin-top:16px">
+	<div class="x-mt-4">
 		<h1 class="x-page-title">{{xIcon "x-history"}}{{ctx.Locale.Tr "repo.commits"}}
 			<span class="x-meta">{{ctx.Locale.Tr "x.results_count" .XCommitCount}}</span>
 		</h1>
 		{{template "x/repo/breadcrumb" .}}
-		{{/* The page is a normal GET paginated list; hx-get only upgrades the
-		     pager links into an in-place update of the list element. */}}
-		<div id="x-list" class="x-card x-swap-fade">
-			<span id="x-list-indicator" class="htmx-indicator x-meta" aria-live="polite">{{ctx.Locale.Tr "x.loading"}}</span>
-			{{if .XCommits}}
-				<ul class="x-list">
-					{{range .XCommits}}
-						{{$gitCommit := .GitCommit}}
-						<li>
-							{{xIcon "x-git-commit"}}
-							<div style="min-width:0">
-								<a class="x-list-title" href="{{$.XRepoLink}}/commit/{{PathEscape $gitCommit.ID.String}}" title="{{$gitCommit.MessageUTF8}}">
-									{{$gitCommit.MessageTitle | ctx.RenderUtils.RenderEmoji}}
-								</a>
-								<div class="x-meta">
-									{{if $gitCommit.Author}}{{$gitCommit.Author.Name}}{{else}}{{$gitCommit.Committer.Name}}{{end}}
-									· {{DateUtils.TimeSince $gitCommit.Committer.When}}
-								</div>
-							</div>
-							<span class="x-spacer"></span>
-							<span class="x-tree-commit">{{ShortSha $gitCommit.ID.String}}</span>
-						</li>
-					{{end}}
-				</ul>
-			{{else}}
-				{{template "x/base/empty" .}}
-			{{end}}
-		</div>
-		{{template "x/repo/commit_pager" .}}
+		{{/* The page is a normal GET paginated list; the pager links are HTMX
+		     requests for the list fragment when JavaScript is on. */}}
+		{{template "x/repo/commits_list" .}}
+		<div id="x-pager">{{template "x/repo/commit_pager" .}}</div>
 	</div>
 {{template "x/base/head_end" .}}

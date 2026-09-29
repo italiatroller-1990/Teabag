@@ -28,6 +28,16 @@ export default {
       files: ['**/*.vue'],
       customSyntax: 'postcss-html',
     },
+    {
+      // The experimental frontend (/\_x) is served straight from the binary,
+      // without a preprocessor, so its values cannot come from a Tailwind
+      // scale. It still obeys every other rule in this file.
+      files: ['modules/htmxui/assets/app.css'],
+      rules: {
+        'scale-unlimited/declaration-strict-value': null,
+        'csstools/value-no-unknown-custom-properties': null,
+      },
+    },
   ],
   rules: {
     '@stylistic/at-rule-name-case': null,

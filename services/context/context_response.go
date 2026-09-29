@@ -75,6 +75,17 @@ func (ctx *Context) RedirectToCurrentSite(location ...string) {
 
 const tplStatus500 templates.TplName = "status/500"
 
+// ErrorTplNameKey is the ctx.Data key a middleware sets to the template name
+// used for 404/500 pages, so a frontend other than the classic one can render
+// its own error pages instead of falling back to the classic layout.
+const ErrorTplNameKey = "ErrorTplName"
+
+// FrontendBasePathKey is the ctx.Data key a frontend mounted under a sub-path
+// sets to the path every link it renders starts with (e.g. "/_x", including the
+// instance sub-path). Shared code that has to recognise one of its own URLs
+// reads it from here, instead of guessing from the shape of the request.
+const FrontendBasePathKey = "FrontendBasePath"
+
 // HTML calls Context.HTML and renders the template to HTTP response
 func (ctx *Context) HTML(status int, name templates.TplName) {
 	log.Debug("Template: %s", name)
@@ -150,7 +161,18 @@ func (ctx *Context) notFoundInternal(skip int, logMsg string, logErr error) {
 	ctx.Data["IsRepo"] = ctx.Repo.Repository != nil
 	ctx.Data["Title"] = "Page Not Found"
 	ctx.Data["ErrorMsg"] = "" // FIXME: the template never renders this message, need to fix in the future (and show safe messages to end users)
-	ctx.HTML(http.StatusNotFound, "status/404")
+	ctx.HTML(http.StatusNotFound, ctx.errorTplName("status/404"))
+}
+
+// errorTplName returns the template used to render an error page. A middleware
+// may set ctx.Data["ErrorTplName"] to let an alternative frontend serve its own
+// error pages, so an error inside one frontend never falls back to the layout of
+// another one.
+func (ctx *Context) errorTplName(def templates.TplName) templates.TplName {
+	if name, ok := ctx.Data[ErrorTplNameKey].(string); ok && name != "" {
+		return templates.TplName(name)
+	}
+	return def
 }
 
 func (ctx *Context) buildUserErrorMessage(msg string, err error) (userErrorMsg string) {
@@ -188,7 +210,7 @@ func (ctx *Context) serverErrorInternal(skip int, logMsg string, logErr error) {
 
 	ctx.Data["Title"] = "Internal Server Error"
 	ctx.Data["ErrorMsg"] = userErrorMsg
-	ctx.HTML(http.StatusInternalServerError, tplStatus500)
+	ctx.HTML(http.StatusInternalServerError, ctx.errorTplName(tplStatus500))
 }
 
 // NotFoundOrServerError use error check function to determine if the error

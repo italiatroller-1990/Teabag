@@ -1,0 +1,19 @@
+{{template "x/base/head_start" .}}
+	{{/* the classic migrating page polls the task with a JavaScript bundle; the
+	     experiment ships none, so the status is the server's last answer and
+	     "check again" is a plain link to the repository root: it re-renders this
+	     page while the import runs and the real home once it is done */}}
+	<div class="x-card x-card-body x-mt-4">
+		<h1 class="x-page-title">{{if .Failed}}{{xIcon "x-alert"}}{{else}}{{xIcon "x-clock"}}{{end}}{{ctx.Locale.Tr "x.migrating"}}</h1>
+		{{if .Failed}}
+			<p class="x-meta">{{if .CloneAddr}}{{ctx.Locale.Tr "repo.migrate.migrating_failed" .CloneAddr}}{{else}}{{ctx.Locale.Tr "repo.migrate.migrating_failed_no_addr"}}{{end}}</p>
+		{{else}}
+			<p class="x-meta">{{ctx.Locale.Tr "repo.migrate.migrating" .CloneAddr}}</p>
+		{{end}}
+		<p class="x-row">
+			<a class="x-btn x-btn-primary" href="{{.XRepoLink}}/">{{xIcon "x-arrow-right"}}{{ctx.Locale.Tr "x.migrating_check_again"}}</a>
+			{{/* cancelling, retrying and deleting stay in the classic UI */}}
+			<a class="x-btn" href="{{.RepoLink}}">{{xIcon "x-settings"}}{{ctx.Locale.Tr "x.experimental.classic_ui"}}</a>
+		</p>
+	</div>
+{{template "x/base/head_end" .}}

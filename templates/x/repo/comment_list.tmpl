@@ -1,0 +1,30 @@
+{{/* Issue comment timeline, rendered from the same preparation the production
+     issue view uses. Only the presentation is the experiment's own: comments
+     are read-only here, every write stays in the classic UI. */}}
+<ol class="x-comments">
+	{{range .XIssue.Comments}}
+		{{if call $.ShouldShowCommentType .Type}}
+			<li class="x-comment" id="issuecomment-{{.ID}}">
+				<div class="x-comment-head">
+					{{ctx.AvatarUtils.Avatar .Poster 24}}
+					<span class="x-list-title">{{.Poster.DisplayName}}</span>
+					<span class="x-meta" title="{{DateUtils.AbsoluteLong .CreatedUnix}}">{{DateUtils.TimeSince .CreatedUnix}}</span>
+					<span class="x-spacer"></span>
+					{{if ne .Type 0}}
+						<span class="x-badge">
+							{{if eq .Type 1}}{{ctx.Locale.Tr "x.comment_reopened"}}
+							{{else if eq .Type 2}}{{ctx.Locale.Tr "repo.issues.closed_title"}}
+							{{else if eq .Type 7}}{{ctx.Locale.Tr "x.comment_label_changed"}}
+							{{else if eq .Type 8}}{{ctx.Locale.Tr "x.comment_milestone_changed"}}
+							{{else if eq .Type 9}}{{ctx.Locale.Tr "x.comment_assignee_changed"}}
+							{{else if eq .Type 10}}{{ctx.Locale.Tr "x.comment_title_changed"}}
+							{{else}}{{ctx.Locale.Tr "x.comment_added"}}
+							{{end}}
+						</span>
+					{{end}}
+				</div>
+				{{if .RenderedContent}}<div class="x-readme x-readme-flat">{{.RenderedContent}}</div>{{end}}
+			</li>
+		{{end}}
+	{{end}}
+</ol>

@@ -135,13 +135,20 @@ GO_DIRS := build cmd modelmigration models modules routers services tests tools
 WEB_DIRS := web_src/js web_src/css
 
 ESLINT_FILES := web_src/js tools *.ts tests/e2e
+# the experimental frontend is hand-written JavaScript served from the binary
+ESLINT_FILES += modules/htmxui
 STYLELINT_FILES := web_src/css web_src/js/components/*.vue
+# the experimental frontend is hand-written CSS served from the binary
+STYLELINT_FILES += modules/htmxui/assets/app.css
 SPELLCHECK_FILES := $(GO_DIRS) $(WEB_DIRS) templates options/locale/locale_en-US.json .github $(filter-out CHANGELOG.md, $(wildcard *.go *.md *.yml *.yaml *.toml))
 EDITORCONFIG_FILES := templates .github/workflows options/locale/locale_en-US.json
 
 GO_SOURCES := $(wildcard *.go)
 GO_SOURCES += $(shell find $(GO_DIRS) -type f -name "*.go")
 GO_SOURCES += $(GENERATED_GO_DEST)
+# the experimental frontend is embedded with go:embed, so editing one of its
+# assets has to rebuild the binary like editing a .go file does
+GO_SOURCES += $(shell find modules/htmxui/assets -type f)
 
 ESLINT_CONCURRENCY ?= 2
 ESLINT_ARGS := --color --max-warnings=0 --concurrency $(ESLINT_CONCURRENCY)

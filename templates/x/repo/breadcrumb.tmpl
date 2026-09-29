@@ -1,8 +1,16 @@
-{{/* Path breadcrumb. Plain links: navigation must work before any JS loads. */}}
-<nav class="x-breadcrumb" aria-label="{{ctx.Locale.Tr "x.code"}}">
-	<span><a href="{{.XRepoLink}}">{{.Repository.Name}}</a></span>
+{{/* Path breadcrumb. Plain links: navigation must work before any JS loads.
+
+     The last element is the current page, so it is text and not a link, and it
+     carries aria-current for assistive technology. */}}
+<nav class="x-breadcrumb" aria-label="{{ctx.Locale.Tr "x.breadcrumb"}}">
+	<a href="{{.XRepoLink}}">{{.Repository.Name}}</a>
 	{{range $i, $name := .TreeNames}}
+		{{$last := eq $i (Eval (len $.TreeNames) "-" 1)}}
 		{{$p := index $.Paths $i}}
-		<span><a href="{{$.TreeLink}}/{{PathEscapeSegments $p}}">{{$name}}</a></span>
+		{{if $last}}
+			<span class="x-breadcrumb-current" aria-current="page">{{$name}}</span>
+		{{else}}
+			<a href="{{$.XBranchLink}}/{{PathEscapeSegments $p}}">{{$name}}</a>
+		{{end}}
 	{{end}}
 </nav>

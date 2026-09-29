@@ -1,18 +1,20 @@
 {{template "x/base/head_start" .}}
 	<h1 class="x-page-title">{{xIcon "x-search"}}{{ctx.Locale.Tr "explore.repos"}}</h1>
-	<p class="x-meta" style="margin-top:0">{{ctx.Locale.Tr "x.results_count" .Total}}</p>
+	<p class="x-meta x-mt-0">{{ctx.Locale.Tr "x.results_count" .Total}}</p>
 
 	{{/* A plain GET form is already a complete, bookmarkable search. HTMX only
 	     upgrades it to filter as you type; delete every hx-* attribute and the
-	     page keeps working exactly the same. */}}
+	     page keeps working exactly the same. The fragment returns the whole
+	     #x-list element, so the swap replaces it instead of nesting a copy. */}}
 	<form class="x-toolbar" method="get" action="{{.XBase}}/explore/repos"
 		hx-get="{{.XBase}}/explore/repos/list"
 		hx-target="#x-list"
-		hx-swap="innerHTML"
+		hx-swap="outerHTML"
 		hx-trigger="input changed delay:300ms, search, change, submit"
 		hx-indicator="#x-list-indicator">
-		<input type="search" name="q" value="{{.Keyword}}" placeholder="{{ctx.Locale.Tr "x.search_repos"}}" aria-label="{{ctx.Locale.Tr "x.search_repos"}}" autocomplete="off">
-		<label class="x-sr-only" for="x-sort">{{ctx.Locale.Tr "repo.issues.filter_sort"}}</label>
+		<label class="x-sr-only" for="x-search">{{ctx.Locale.Tr "x.search_repos"}}</label>
+		<input id="x-search" type="search" name="q" value="{{.Keyword}}" placeholder="{{ctx.Locale.Tr "x.search_repos"}}" autocomplete="off">
+		<label class="x-sr-only" for="x-sort">{{ctx.Locale.Tr "x.sort"}}</label>
 		<select id="x-sort" name="sort">
 			<option value="recentupdate" {{if eq .SortType "recentupdate"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.filter_sort.recentupdate"}}</option>
 			<option value="leastupdate" {{if eq .SortType "leastupdate"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.filter_sort.leastupdate"}}</option>
@@ -26,5 +28,7 @@
 	</form>
 
 	{{template "x/explore/repo_list" .}}
-	{{template "x/base/pager" .}}
+	{{/* #x-pager is a stable out-of-band swap target: the list fragment re-renders
+	     the pager with it, so paging never leaves "Page 1 of n" behind. */}}
+	<div id="x-pager">{{template "x/base/pager" dict "Page" .Page "Target" "x-list" "Fragment" (print .XBase "/explore/repos/list") "Indicator" "x-list-indicator"}}</div>
 {{template "x/base/head_end" .}}

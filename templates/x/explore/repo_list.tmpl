@@ -2,13 +2,17 @@
      fragment target and included by the full page, so both paths emit exactly
      the same markup and there is only one place to change. */}}
 <div id="x-list" class="x-card x-swap-fade">
-	<span id="x-list-indicator" class="htmx-indicator x-meta" aria-live="polite">{{ctx.Locale.Tr "x.loading"}}</span>
+	<span id="x-list-indicator" class="htmx-indicator x-meta" role="status">{{ctx.Locale.Tr "x.loading"}}</span>
 	{{if .Repos}}
 		<ul class="x-list">
 			{{range .Repos}}
 				<li>
 					{{if .IsPrivate}}{{xIcon "x-lock"}}{{else if .IsFork}}{{xIcon "x-repo-forked"}}{{else}}{{xIcon "x-repo"}}{{end}}
-					<a class="x-list-title" href="{{.Link}}">{{.Name}}</a>
+					{{/* the repository has an experimental page, so the list stays
+					     inside the experiment; the owner and the name are the
+					     ones the database has, so the link resolves renames, and
+					     they are escaped the way the router escapes them */}}
+					<a class="x-list-title" href="{{$.XBase}}/{{PathEscape .OwnerName}}/{{PathEscape .Name}}">{{.Name}}</a>
 					{{if .Owner}}<span class="x-meta">/ {{.Owner.Name}}</span>{{end}}
 					<span class="label-list">
 						{{if .IsArchived}}<span class="x-badge">{{ctx.Locale.Tr "repo.desc.archived"}}</span>{{end}}

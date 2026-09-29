@@ -1,6 +1,6 @@
-{{/* Directory listing. Rendered inline on first paint; when the filter below
-     is used with JavaScript, HTMX re-renders exactly this element. Without
-     JavaScript the form submits and the server sends the same markup. */}}
+{{/* Directory listing. Rendered inline on first paint, on its own as the HTMX
+     fragment the filter form swaps in. Both paths render this exact partial,
+     so the filtered and the unfiltered markup cannot drift apart. */}}
 <div id="x-file-list" class="x-card x-swap-fade">
 	<div class="x-card-head">
 		{{xIcon "x-git-commit"}}{{ctx.Locale.Tr "x.last_commit"}}
@@ -11,8 +11,7 @@
 	</div>
 	{{if .HasParentPath}}
 		<ul class="x-tree"><li class="x-tree-item">
-			{{xIcon "x-folder"}}{{xIcon "x-arrow-left" 12}}
-			<a class="x-tree-name" href="{{.BranchLink}}{{if .ParentPath}}/{{PathEscapeSegments .ParentPath}}{{end}}">..</a>
+			<a class="x-tree-name" href="{{.XBranchLink}}{{if .ParentPath}}/{{PathEscapeSegments .ParentPath}}{{end}}">..</a>
 		</li></ul>
 	{{end}}
 	{{if .Files}}
@@ -26,7 +25,7 @@
 						{{if $item.SubmoduleFile}}@ <span class="mono">{{ShortSha $item.SubmoduleFile.RefID}}</span>{{end}}
 					{{else}}
 						{{if $entry.IsDir}}{{xIcon "x-folder"}}{{else if $entry.IsLink}}{{xIcon "x-file"}}{{xIcon "x-link" 12}}{{else}}{{xIcon "x-file"}}{{end}}
-						<a class="x-tree-name" href="{{$.TreeLink}}/{{PathEscapeSegments $entry.Name}}" title="{{$entry.Name}}">{{$entry.Name}}</a>
+						<a class="x-tree-name" href="{{$.XTreeLink}}/{{PathEscapeSegments $entry.Name}}" title="{{$entry.Name}}">{{$entry.Name}}</a>
 					{{end}}
 					<span class="x-spacer"></span>
 					{{if $item.Commit}}

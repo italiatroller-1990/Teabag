@@ -15,7 +15,7 @@ export default defineConfig({
       {
         test: {
           name: 'browser',
-          include: ['web_src/**/*.test.ts'],
+          include: ['web_src/**/*.test.ts', 'modules/htmxui/**/*.test.ts'],
           setupFiles: ['web_src/js/vitest.setup.ts'],
           browser: {
             enabled: true,

@@ -1,22 +1,30 @@
-{{/* Commit pagination. Plain links; HTMX swaps them into #x-list when present. */}}
+{{/* Commit pagination. Plain links to a real page, so they work with JavaScript
+     disabled; the fragment endpoint makes them an in-place update when it is on. */}}
 <nav class="x-pager" aria-label="{{ctx.Locale.Tr "x.pagination"}}">
-	{{$base := print .XRepoLink "/commits/branch/" (.RefFullName.ShortName | PathEscapeSegments)}}
-	{{if .TreePath}}{{$base = print $base "/" (.TreePath | PathEscapeSegments)}}{{end}}
+	{{/* the page size is part of the link, so the next page shows the same
+	     number of commits instead of silently switching to the site default */}}
+	{{$base := .XCommitsLink}}
+	{{$prev := print $base "?page=" (Eval .XPage "-" 1) "&limit=" .XPageSize}}
+	{{$next := print $base "?page=" (Eval .XPage "+" 1) "&limit=" .XPageSize}}
+	{{$prevFragment := print .XCommitsListLink "?page=" (Eval .XPage "-" 1) "&limit=" .XPageSize}}
+	{{$nextFragment := print .XCommitsListLink "?page=" (Eval .XPage "+" 1) "&limit=" .XPageSize}}
 	{{if .XHasPrev}}
-		<a class="x-btn x-btn-sm" rel="prev" href="{{$base}}?page={{Eval .XPage "-" 1}}"
-			hx-get="{{$base}}?page={{Eval .XPage "-" 1}}" hx-select="#x-list" hx-target="#x-list" hx-swap="outerHTML">
+		<a class="x-btn x-btn-sm" rel="prev" href="{{$prev}}"
+			hx-get="{{$prevFragment}}"
+			hx-target="#x-list" hx-swap="outerHTML" hx-indicator="#x-list-indicator">
 			{{xIcon "x-chevron-left"}}{{ctx.Locale.Tr "repo.issues.previous"}}
 		</a>
 	{{else}}
-		<span class="x-btn x-btn-sm" aria-disabled="true">{{xIcon "x-chevron-left"}}{{ctx.Locale.Tr "repo.issues.previous"}}</span>
+		<span class="x-btn x-btn-sm is-disabled" aria-disabled="true">{{xIcon "x-chevron-left"}}{{ctx.Locale.Tr "repo.issues.previous"}}</span>
 	{{end}}
-	<span class="x-meta">{{ctx.Locale.Tr "x.page_of" .XPage (Eval .XCommitCount "/" .XPageSize)}}</span>
+	<span class="x-meta">{{ctx.Locale.Tr "x.page_of" .XPage .XPageCount}}</span>
 	{{if .XHasNext}}
-		<a class="x-btn x-btn-sm" rel="next" href="{{$base}}?page={{Eval .XPage "+" 1}}"
-			hx-get="{{$base}}?page={{Eval .XPage "+" 1}}" hx-select="#x-list" hx-target="#x-list" hx-swap="outerHTML">
+		<a class="x-btn x-btn-sm" rel="next" href="{{$next}}"
+			hx-get="{{$nextFragment}}"
+			hx-target="#x-list" hx-swap="outerHTML" hx-indicator="#x-list-indicator">
 			{{ctx.Locale.Tr "repo.issues.next"}}{{xIcon "x-chevron-right"}}
 		</a>
 	{{else}}
-		<span class="x-btn x-btn-sm" aria-disabled="true">{{ctx.Locale.Tr "repo.issues.next"}}{{xIcon "x-chevron-right"}}</span>
+		<span class="x-btn x-btn-sm is-disabled" aria-disabled="true">{{ctx.Locale.Tr "repo.issues.next"}}{{xIcon "x-chevron-right"}}</span>
 	{{end}}
 </nav>

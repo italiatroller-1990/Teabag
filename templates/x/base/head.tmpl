@@ -6,17 +6,20 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>{{if .Title}}{{.Title}} - {{end}}{{AppName}}</title>
-	<link rel="icon" href="{{AssetUrlPrefix}}/img/favicon.svg" type="image/svg+xml">
-	{{/* htmx is configured declaratively so the page needs no inline <script> and stays CSP-clean:
+	<link rel="icon" href="{{.XBase}}/asset/favicon.svg" type="image/svg+xml">
+	{{/* htmx is configured declaratively, so the page carries no inline script and stays CSP-clean:
 	     "allowEval": false keeps htmx off eval(), the nonce lets it insert scripts in swapped fragments. */}}
 	<meta name="htmx-config" content='{"allowEval":false,"inlineScriptNonce":"{{ctx.CspScriptNonce}}","defaultSettleDelay":0}'>
 	<link rel="stylesheet" href="{{.XBase}}/asset/app.css">
 	{{template "custom/header" .}}
 </head>
 <body>
-	<a class="x-sr-only" href="#x-main">Skip to main content</a>
+	{{/* the skip link is hidden until it takes focus, so keyboard users get it
+	     on the first Tab and never see it otherwise */}}
+	<a class="x-skip-link" href="#x-main">{{ctx.Locale.Tr "x.skip_to_content"}}</a>
 	{{template "x/base/navbar" .}}
-	<main class="x-main" id="x-main" role="main">
+	{{/* <main> already has the main role: adding it again is redundant ARIA */}}
+	<main class="x-main" id="x-main" tabindex="-1">
 		<div class="x-container">
 			{{template "x/base/alert" .}}
 {{end}}
@@ -24,10 +27,10 @@
 {{define "x/base/head_end"}}
 		</div>
 	</main>
-	<footer class="x-container x-meta" style="padding-bottom:24px">
+	<footer class="x-container x-meta x-footer">
 		<span>{{AppName}} experimental frontend — Go templates + HTMX + SVG</span>
 		{{if ShowFooterPoweredBy}}
-			· <a target="_blank" href="https://github.com/italiatroller/Teabag">{{ctx.Locale.Tr "powered_by" "Teabag"}}</a>
+			· <a target="_blank" rel="noopener" href="https://github.com/italiatroller/Teabag">{{ctx.Locale.Tr "powered_by" "Teabag"}}</a>
 		{{end}}
 	</footer>
 	{{template "custom/footer" .}}

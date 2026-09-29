@@ -1,33 +1,67 @@
 {{template "x/base/head_start" .}}
 	{{template "x/repo/header" .}}
-	<div style="margin-top:16px">
+	<div class="x-mt-4">
 		<h1 class="x-page-title">{{xIcon "x-issue-opened"}}{{ctx.Locale.Tr "repo.issues"}}</h1>
 		{{template "x/repo/breadcrumb" .}}
 
 		{{/* Issue filters are ordinary query parameters, so each combination is a
-		     shareable URL. HTMX narrows the list in place while typing. */}}
+		     shareable URL. HTMX narrows the list in place while typing, by asking
+		     the fragment endpoint for the one element it replaces. */}}
 		<form class="x-toolbar" method="get" action="{{.XRepoLink}}/issues"
-			hx-get="{{.XRepoLink}}/issues"
-			hx-select="#x-issue-list"
+			hx-get="{{.XRepoLink}}/issues/list"
 			hx-target="#x-issue-list"
 			hx-swap="outerHTML"
 			hx-trigger="input changed delay:300ms, search, change, submit"
 			hx-indicator="#x-issue-indicator">
-			<input type="search" name="q" value="{{.Keyword}}" placeholder="{{ctx.Locale.Tr "x.search_issues"}}" aria-label="{{ctx.Locale.Tr "x.search_issues"}}" autocomplete="off">
+			<label class="x-sr-only" for="x-issue-search">{{ctx.Locale.Tr "x.search_issues"}}</label>
+			<input id="x-issue-search" type="search" name="q" value="{{.Keyword}}" placeholder="{{ctx.Locale.Tr "x.search_issues"}}" autocomplete="off">
 			<label class="x-sr-only" for="x-state">{{ctx.Locale.Tr "x.state"}}</label>
 			<select id="x-state" name="state">
-				<option value="open" {{if eq .State "open"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.open"}}</option>
-				<option value="closed" {{if eq .State "closed"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.closed"}}</option>
-				<option value="all" {{if eq .State "all"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.all"}}</option>
+				<option value="open" {{if eq .State "open"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.open_title"}}</option>
+				<option value="closed" {{if eq .State "closed"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.closed_title"}}</option>
+				<option value="all" {{if eq .State "all"}}selected{{end}}>{{ctx.Locale.Tr "all"}}</option>
+			</select>
+			<label class="x-sr-only" for="x-assignee">{{ctx.Locale.Tr "repo.issues.filter_assignee"}}</label>
+			<select id="x-assignee" name="assignee">
+				<option value="">{{ctx.Locale.Tr "repo.issues.filter_assignee_no_assignee"}}</option>
+				{{range .Assignees}}
+					<option value="{{.ID}}" {{if eq $.AssigneeID (print .ID)}}selected{{end}}>{{.DisplayName}}</option>
+				{{end}}
 			</select>
 			<label class="x-sr-only" for="x-poster">{{ctx.Locale.Tr "repo.issues.filter_poster"}}</label>
-			<input id="x-poster" name="poster" value="{{.Poster}}" placeholder="{{ctx.Locale.Tr "repo.issues.filter_poster"}}" autocomplete="off">
+			<input id="x-poster" name="poster" value="{{.PosterUsername}}" placeholder="{{ctx.Locale.Tr "repo.issues.filter_poster"}}" autocomplete="off">
+			<label class="x-sr-only" for="x-issue-sort">{{ctx.Locale.Tr "x.sort"}}</label>
+			<select id="x-issue-sort" name="sort">
+				<option value="" {{if not .SortType}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.filter_sort.latest"}}</option>
+				<option value="oldest" {{if eq .SortType "oldest"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.filter_sort.oldest"}}</option>
+				<option value="recentupdate" {{if eq .SortType "recentupdate"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.filter_sort.recentupdate"}}</option>
+				<option value="leastupdate" {{if eq .SortType "leastupdate"}}selected{{end}}>{{ctx.Locale.Tr "repo.issues.filter_sort.leastupdate"}}</option>
+			</select>
 			<button type="submit" class="x-btn x-btn-primary">{{xIcon "x-search"}}{{ctx.Locale.Tr "x.search"}}</button>
 			<a class="x-btn" href="{{.XRepoLink}}/issues">{{ctx.Locale.Tr "filter.clear"}}</a>
 		</form>
-		<span id="x-issue-indicator" class="htmx-indicator x-meta" aria-live="polite">{{ctx.Locale.Tr "x.loading"}}</span>
+
+		{{/* Label filter: every label is a plain link that adds or removes its id
+		     from the "labels" parameter, so it works as a bookmark and the
+		     selected set stays visible in the address bar. The base query carries
+		     every filter that is active right now, like the production label
+		     filter does, so clicking a label narrows the current list instead of
+		     starting a new one. The colour is data, so it cannot live in the
+		     stylesheet and is set inline. */}}
+		{{if .Labels}}
+			{{$query := QueryBuild (print .XRepoLink "/issues") "q" .Keyword "state" .State "sort" .SortType "poster" .PosterUsername "assignee" .AssigneeID "milestone" .MilestoneID}}
+			<nav class="x-label-list" aria-label="{{ctx.Locale.Tr "repo.issues.filter_label"}}">
+				<a class="x-btn x-btn-sm" href="{{QueryBuild $query "labels" NIL}}">{{ctx.Locale.Tr "repo.issues.filter_label_no_select"}}</a>
+				{{range .Labels}}
+					<a class="x-label{{if .IsSelected}} is-selected{{end}}" href="{{QueryBuild $query "labels" .QueryString}}"
+						{{if .Color}}style="border-color: {{.Color}}; color: {{.Color}}"{{end}}
+						{{if .IsSelected}}aria-current="true"{{end}}>{{.Name}}</a>
+				{{end}}
+			</nav>
+		{{end}}
+		<span id="x-issue-indicator" class="htmx-indicator x-meta" role="status">{{ctx.Locale.Tr "x.loading"}}</span>
 
 		{{template "x/repo/issue_list" .}}
-		{{template "x/base/pager" .}}
+		<div id="x-pager">{{template "x/base/pager" dict "Page" .Page "Target" "x-issue-list" "Fragment" (print .XRepoLink "/issues/list") "Indicator" "x-issue-indicator"}}</div>
 	</div>
 {{template "x/base/head_end" .}}

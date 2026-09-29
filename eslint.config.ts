@@ -35,6 +35,8 @@ export default defineConfig([
     'web_src/fomantic',
     'public/assets/js',
     'web_src/js/webcomponents',
+    // htmx is vendored as-is by the experimental frontend, not written here
+    'modules/htmxui/assets/htmx.min.js',
   ]),
   {
     files: [`**/*.{${[...jsExts, ...tsExts].join(',')}}`],
@@ -1227,6 +1229,21 @@ export default defineConfig([
     rules: {
       'no-restricted-globals': [2, 'self', ...restrictedGlobals],
       'no-restricted-properties': [2, ...restrictedProperties],
+    },
+  },
+  {
+    // The experimental frontend (/_x) is plain browser JavaScript served from the
+    // Go binary, so it is linted with the browser globals and without the Vue
+    // and jQuery ones the classic frontend adds.
+    files: ['modules/htmxui/**/*.{js,ts}'],
+    languageOptions: {globals: {...globals.browser}},
+    rules: {
+      'no-restricted-globals': [2, 'self', ...restrictedGlobals],
+      'no-restricted-properties': [2, ...restrictedProperties],
+      // the assets are served as classic <script src> files, where the strict
+      // mode directive is what makes the file strict; the frontend build would
+      // make it a module, but there is no build step here
+      'unicorn/prefer-module': [0],
     },
   },
   {

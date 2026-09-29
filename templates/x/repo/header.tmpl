@@ -1,17 +1,28 @@
-{{/* Repository header: identity, branch and the handful of actions the
-     experimental frontend supports. Everything else links to the classic UI. */}}
-<div class="x-card x-card-head" style="border-radius:var(--radius) var(--radius) 0 0">
+{{/* Repository header: identity, ref and the handful of actions the
+     experimental frontend supports. Everything else stays in the classic UI. */}}
+<div class="x-card x-card-head x-repo-head">
 	{{if .Repository.IsPrivate}}{{xIcon "x-lock"}}{{else if .Repository.IsFork}}{{xIcon "x-repo-forked"}}{{else}}{{xIcon "x-repo" 20}}{{end}}
 	<span class="x-list-title">{{.Repository.Owner.Name}} / {{.Repository.Name}}</span>
 	{{if .Repository.IsArchived}}<span class="x-badge">{{ctx.Locale.Tr "repo.desc.archived"}}</span>{{end}}
-	{{if .Repository.IsEmpty}}<span class="x-badge">{{ctx.Locale.Tr "repo.empty"}}</span>{{end}}
+	{{if .Repository.IsEmpty}}<span class="x-badge">{{ctx.Locale.Tr "repo.empty_message"}}</span>{{end}}
 	<span class="x-spacer"></span>
 	{{if .RefFullName}}
-		<span class="x-badge" title="{{.RefFullName.RefType}}">{{xIcon "x-git-branch" 12}}{{.RefFullName.ShortName}}</span>
-		<button type="button" class="x-btn x-btn-sm" data-x-copy="{{.XCloneAddr}}">
-			{{xIcon "x-copy"}}{{ctx.Locale.Tr "copy"}}
+		<span class="x-badge" title="{{.RefTypeNameSubURL}}">{{xIcon "x-git-branch" 12}}{{.RefFullName.ShortName}}</span>
+	{{end}}
+	{{/* the button is only rendered when there is something to copy, and it
+	     says what: the address next to it is the clone URL, not the page URL */}}
+	{{if .XCloneAddr}}
+		<button type="button" class="x-btn x-btn-sm x-clipboard" data-x-copy="{{.XCloneAddr}}"
+			data-x-copy-done="{{ctx.Locale.Tr "x.copy_done"}}">
+			{{xIcon "x-copy"}}{{ctx.Locale.Tr "copy"}} <span class="mono x-clipboard-value">{{.XCloneAddr}}</span>
 		</button>
 	{{end}}
-	<a class="x-btn x-btn-sm" href="{{.XRepoLink}}/src/branch/{{.Repository.DefaultBranch | PathEscapeSegments}}">{{xIcon "x-code"}}{{ctx.Locale.Tr "repo.code"}}</a>
-	<a class="x-btn x-btn-sm" href="{{.XRepoLink}}/commits/branch/{{.Repository.DefaultBranch | PathEscapeSegments}}">{{xIcon "x-history"}}{{ctx.Locale.Tr "repo.file_history"}}</a>
+	<nav class="x-row" aria-label="{{ctx.Locale.Tr "repo.code"}}">
+		<a class="x-btn x-btn-sm" href="{{.XRepoLink}}/src/branch/{{.Repository.DefaultBranch | PathEscapeSegments}}">{{xIcon "x-code"}}{{ctx.Locale.Tr "repo.code"}}</a>
+		<a class="x-btn x-btn-sm" href="{{.XRepoLink}}/commits/branch/{{.Repository.DefaultBranch | PathEscapeSegments}}">{{xIcon "x-history"}}{{ctx.Locale.Tr "repo.file_history"}}</a>
+		{{/* the issue list is per repository, not per reference, so this link
+		     does not depend on a ref being resolved: the issue routes carry no
+		     ref middleware, and the link used to vanish on exactly those pages */}}
+		<a class="x-btn x-btn-sm" href="{{.XRepoLink}}/issues">{{xIcon "x-issue-opened"}}{{ctx.Locale.Tr "repo.issues"}}</a>
+	</nav>
 </div>

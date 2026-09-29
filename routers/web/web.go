@@ -1816,6 +1816,9 @@ func registerWebRoutes(m *web.Router, webAuth *AuthMiddleware) {
 	m.NotFound(func(w http.ResponseWriter, req *http.Request) {
 		ctx := context.GetWebContext(req.Context())
 		defer routing.RecordFuncInfo(ctx, routing.GetFuncInfo(ctx.NotFound, "WebNotFound"))()
+		// an URL that matches no route at all gets the error page of the
+		// frontend that was asked for, not the one of the classic frontend
+		xhtmx.MarkErrorPage(ctx)
 		ctx.NotFound(nil)
 	})
 }

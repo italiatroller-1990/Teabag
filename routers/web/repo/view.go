@@ -175,29 +175,38 @@ func markupRenderToHTML(ctx *context.Context, renderCtx *markup.RenderContext, r
 	return escaped, output, err
 }
 
+// setMigratingData fills the data the migrating page shows about the running
+// import. The classic page and its experimental counterpart share it, so the
+// two can never disagree about the state of a task.
+func setMigratingData(ctx *context.Context) {
+	task, err := admin_model.GetMigratingTask(ctx, ctx.Repo.Repository.ID)
+	if err != nil {
+		if admin_model.IsErrTaskDoesNotExist(err) {
+			ctx.Data["CloneAddr"] = ""
+			ctx.Data["Failed"] = true
+			return
+		}
+		ctx.ServerError("models.GetMigratingTask", err)
+		return
+	}
+	cfg, err := task.MigrateConfig()
+	if err != nil {
+		ctx.ServerError("task.MigrateConfig", err)
+		return
+	}
+
+	ctx.Data["MigrateTask"] = task
+	ctx.Data["CloneAddr"], _ = util.SanitizeURL(cfg.CloneAddr)
+	ctx.Data["Failed"] = task.Status == structs.TaskStatusFailed
+}
+
 func checkHomeCodeViewable(ctx *context.Context) {
 	if ctx.Repo.Permission.HasUnits() {
 		if ctx.Repo.Repository.IsBeingCreated() {
-			task, err := admin_model.GetMigratingTask(ctx, ctx.Repo.Repository.ID)
-			if err != nil {
-				if admin_model.IsErrTaskDoesNotExist(err) {
-					ctx.Data["CloneAddr"] = ""
-					ctx.Data["Failed"] = true
-					ctx.HTML(http.StatusOK, tplMigrating)
-					return
-				}
-				ctx.ServerError("models.GetMigratingTask", err)
+			setMigratingData(ctx)
+			if ctx.Written() {
 				return
 			}
-			cfg, err := task.MigrateConfig()
-			if err != nil {
-				ctx.ServerError("task.MigrateConfig", err)
-				return
-			}
-
-			ctx.Data["MigrateTask"] = task
-			ctx.Data["CloneAddr"], _ = util.SanitizeURL(cfg.CloneAddr)
-			ctx.Data["Failed"] = task.Status == structs.TaskStatusFailed
 			ctx.HTML(http.StatusOK, tplMigrating)
 			return
 		}

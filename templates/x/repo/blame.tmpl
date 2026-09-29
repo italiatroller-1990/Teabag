@@ -1,25 +1,44 @@
 {{template "x/base/head_start" .}}
 	{{template "x/repo/header" .}}
-	<div style="margin-top:16px">
+	<div class="x-mt-4">
 		<h1 class="x-page-title">{{xIcon "x-eye"}}{{ctx.Locale.Tr "repo.blame"}}
 			<span class="x-meta mono">{{.FileTreePath}}</span>
 		</h1>
 		{{template "x/repo/breadcrumb" .}}
 		{{if .IsFileTooLarge}}
-			<div class="x-card x-card-body">{{ctx.Locale.Tr "repo.file_too_large"}}</div>
+			<div class="x-card x-card-body x-mt-3">{{ctx.Locale.Tr "repo.file_too_large"}}</div>
 		{{else}}
-			<div class="x-card" style="margin-top:12px">
-				{{range .BlameRows}}
-					{{/* one row per line; the commit cell only appears on the first
-					     line of a run, which is how every forge renders blame */}}
-					<div class="x-blame-row">
-						<span class="x-blame-line">{{.RowNumber}}</span>
-						<span class="x-blame-code">{{.Code}}</span>
-						<span class="x-blame-commit">
-							{{if .CommitURL}}<a href="{{.CommitURL}}" title="{{.CommitMessage}}">{{ShortSha .CommitURL}}</a>{{end}}
-						</span>
-					</div>
-				{{end}}
+			{{/* a table, not a pile of divs: "line", "code" and "commit" are
+			     columns, and a row header keeps them associated per row. The
+			     commit cell is only filled on the first line of a run, which is
+			     how every forge renders blame. */}}
+			<div class="x-card x-mt-3">
+				<table class="x-blame">
+					<caption class="x-sr-only">{{ctx.Locale.Tr "repo.blame"}} {{.FileTreePath}}</caption>
+					<thead>
+						<tr>
+							<th scope="col" class="x-sr-only">{{ctx.Locale.Tr "x.line"}}</th>
+							<th scope="col" class="x-sr-only">{{ctx.Locale.Tr "repo.diff.view_file"}}</th>
+							<th scope="col" class="x-sr-only">{{ctx.Locale.Tr "repo.commits"}}</th>
+						</tr>
+					</thead>
+					<tbody>
+					{{range .BlameRows}}
+						<tr class="x-blame-row">
+							<th scope="row" class="x-blame-line">{{.RowNumber}}</th>
+							<td class="x-blame-code">{{.Code}}</td>
+							<td class="x-blame-commit">
+								{{if .CommitURL}}
+									<a href="{{.CommitURL}}" title="{{.CommitMessage}}">
+										<span class="mono">{{ShortSha .CommitSha}}</span>
+										<span class="x-blame-message">{{.CommitSince}}</span>
+									</a>
+								{{end}}
+							</td>
+						</tr>
+					{{end}}
+					</tbody>
+				</table>
 			</div>
 		{{end}}
 	</div>

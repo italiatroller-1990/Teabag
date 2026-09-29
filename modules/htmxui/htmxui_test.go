@@ -10,7 +10,7 @@ import (
 )
 
 func TestEmbeddedAssetsArePresent(t *testing.T) {
-	for _, name := range []string{"app.css", "app.js", "htmx.min.js", "LICENSE.htmx.txt"} {
+	for _, name := range []string{"app.css", "app.js", "htmx.min.js", "favicon.svg", "LICENSE.htmx.txt"} {
 		data, err := Assets().Open(name)
 		assert.NoError(t, err, "asset %q must be embedded", name)
 		assert.NoError(t, data.Close())

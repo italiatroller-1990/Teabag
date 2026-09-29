@@ -1,0 +1,60 @@
+{{template "x/base/head_start" .}}
+	{{template "x/repo/header" .}}
+	<div class="x-mt-4">
+		<h1 class="x-page-title">
+			{{if .XIssue.IsClosed}}{{xIcon "x-issue-closed" 24}}{{else}}{{xIcon "x-issue-opened" 24}}{{end}}
+			<span class="x-badge">#{{.XIssue.Index}}</span>
+			{{.XIssue.Title}}
+		</h1>
+
+		<div class="x-card x-card-body">
+			<div class="x-row x-row-wrap">
+				{{if .XIssue.IsClosed}}
+					<span class="x-badge">{{ctx.Locale.Tr "repo.issues.closed_title"}}</span>
+				{{else}}
+					<span class="x-badge x-badge-success">{{ctx.Locale.Tr "repo.issues.open_title"}}</span>
+				{{end}}
+				{{if .XIssue.IsPull}}<span class="x-badge x-badge-accent">{{ctx.Locale.Tr "repo.pulls"}}</span>{{end}}
+				{{range .XIssueLabels}}
+					<span class="x-label"{{if .Color}} style="border-color: {{.Color}}; color: {{.Color}}"{{end}}>{{.Name}}</span>
+				{{end}}
+				<span class="x-spacer"></span>
+				<span class="x-meta">
+					{{if .XIssue.IsClosed}}
+						{{ctx.Locale.Tr "x.issue_closed_at" (DateUtils.AbsoluteLong .XIssue.ClosedUnix)}}
+					{{else}}
+						{{ctx.Locale.Tr "x.issue_opened_at" (DateUtils.AbsoluteLong .XIssue.CreatedUnix)}}
+					{{end}}
+				</span>
+			</div>
+
+			{{if .XIssue.RenderedContent}}
+				<article class="x-readme x-readme-flat">{{.XIssue.RenderedContent}}</article>
+			{{end}}
+
+			<div class="x-row x-row-wrap x-mt-2">
+				{{if .XIssue.Poster}}
+					<span class="x-meta">{{ctx.Locale.Tr "repo.issues.filter_poster"}}:
+						{{ctx.AvatarUtils.Avatar .XIssue.Poster 20}} {{.XIssue.Poster.DisplayName}}</span>
+				{{end}}
+				{{range .XIssueAssignees}}
+					<span class="x-meta">{{ctx.Locale.Tr "repo.issues.filter_assignee"}}:
+						{{ctx.AvatarUtils.Avatar . 20}} {{.DisplayName}}</span>
+				{{end}}
+			</div>
+		</div>
+
+		{{/* Comments come from the same preparation the production issue view
+		     uses, so escaping, mentions and cross-references are identical. */}}
+		{{if .XIssue.Comments}}
+			<h2 class="x-page-title x-mt-4">{{ctx.Locale.Tr "repo.issues.num_comments" (len .XIssue.Comments)}}</h2>
+			{{template "x/repo/comment_list" .}}
+		{{end}}
+
+		<p class="x-meta x-mt-3">
+			{{/* commenting, editing and every other write stay in the classic UI,
+			     where the production forms and their permission checks live */}}
+			<a class="x-btn x-btn-sm" href="{{.RepoLink}}/issues/{{.XIssue.Index}}">{{ctx.Locale.Tr "x.experimental.issue_in_classic_ui"}}</a>
+		</p>
+	</div>
+{{template "x/base/head_end" .}}

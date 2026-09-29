@@ -1,20 +1,22 @@
-<nav class="x-navbar" role="navigation" aria-label="{{ctx.Locale.Tr "aria.navbar"}}">
+{{/* <nav> already has the navigation role: adding it again is redundant ARIA */}}
+<nav class="x-navbar" aria-label="{{ctx.Locale.Tr "aria.navbar"}}">
 	<a class="x-brand" href="{{.XBase}}/">
 		{{xIcon "x-repo" 20}}
 		{{AppName}}
 	</a>
-	<a class="x-nav-link" href="{{.XBase}}/explore/repos">{{xIcon "x-search"}}{{ctx.Locale.Tr "explore.repos"}}</a>
-	<a class="x-nav-link" href="{{.XBase}}/explore/users">{{xIcon "x-user"}}{{ctx.Locale.Tr "explore.users"}}</a>
+	<a class="x-nav-link" href="{{.XBase}}/explore/repos" {{if eq .XCurrentPage "repos"}}aria-current="page"{{end}}>{{xIcon "x-search"}}{{ctx.Locale.Tr "explore.repos"}}</a>
+	<a class="x-nav-link" href="{{.XBase}}/explore/users" {{if eq .XCurrentPage "users"}}aria-current="page"{{end}}>{{xIcon "x-user"}}{{ctx.Locale.Tr "explore.users"}}</a>
 	<span class="x-spacer"></span>
 	{{if .SignedUser}}
 		<a class="x-row x-meta" href="{{AppSubUrl}}/{{.SignedUser.Name}}">
 			{{ctx.AvatarUtils.Avatar .SignedUser 20}}
 			{{.SignedUser.Name}}
 		</a>
-		<a class="x-nav-link" href="{{AppSubUrl}}/user/settings">{{xIcon "x-settings"}}{{ctx.Locale.Tr "settings"}}</a>
-		<form method="post" action="{{AppSubUrl}}/user/logout">
-			<button type="submit" class="x-btn x-btn-sm">{{xIcon "x-log-out"}}{{ctx.Locale.Tr "sign_out"}}</button>
-		</form>
+		<a class="x-nav-link" href="{{AppSubUrl}}/user/settings">{{xIcon "x-settings"}}{{ctx.Locale.Tr "your_settings"}}</a>
+		{{/* signing out is the production GET route, reached by a link exactly
+		     like the classic navbar does it: the experiment has no logout of
+		     its own to keep in sync with the session handling */}}
+		<a class="x-nav-link" href="{{AppSubUrl}}/user/logout">{{xIcon "x-log-out"}}{{ctx.Locale.Tr "sign_out"}}</a>
 	{{else}}
 		<a class="x-nav-link" href="{{AppSubUrl}}/user/login">{{ctx.Locale.Tr "sign_in"}}</a>
 		<a class="x-btn x-btn-sm x-btn-primary" href="{{AppSubUrl}}/user/sign_up">{{ctx.Locale.Tr "register"}}</a>

@@ -1,12 +1,15 @@
-{{/* User list body, shared by the full page and the HTMX fragment. */}}
+{{/* User list body, shared by the full page and the HTMX fragment.
+
+     The experiment has no user profile page yet, so every name links to the
+     classic UI. The title says so, instead of silently leaving the experiment. */}}
 <div id="x-list" class="x-card x-swap-fade">
-	<span id="x-list-indicator" class="htmx-indicator x-meta" aria-live="polite">{{ctx.Locale.Tr "x.loading"}}</span>
+	<span id="x-list-indicator" class="htmx-indicator x-meta" role="status">{{ctx.Locale.Tr "x.loading"}}</span>
 	{{if .Users}}
 		<ul class="x-list">
 			{{range .Users}}
 				<li>
 					{{ctx.AvatarUtils.Avatar . 28}}
-					<a class="x-list-title" href="{{.HTMLURL ctx}}">{{.Name}}</a>
+					<a class="x-list-title" href="{{.HTMLURL ctx}}" title="{{ctx.Locale.Tr "x.experimental.classic_ui"}}">{{.Name}}</a>
 					{{if .FullName}}<span class="x-meta">{{.FullName}}</span>{{end}}
 					<span class="x-spacer"></span>
 					{{if .Location}}<span class="x-meta">{{.Location}}</span>{{end}}

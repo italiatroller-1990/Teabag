@@ -1,24 +1,29 @@
 {{/* One directory level of the file tree, rendered as an HTML fragment.
 
-     A directory owns an always-present (empty) child <ul> so the expand button
-     has a stable target: with JavaScript the click fills it in place, without
-     it the directory name is a plain link to the directory listing. */}}
+     A directory owns an always-present (empty) child <ul> whose id is derived
+     from the node path, so the expand button has a stable and unique swap
+     target: with JavaScript the click fills it in place, without it the
+     directory name is a plain link to the directory listing.
+
+     A nested <ul> is a child of the <li> that owns it, so the HTML stays
+     valid when several levels are open at once. */}}
 <ul class="x-tree" data-x-path="{{.XTreePath}}">
-	{{range $i, $node := .XTreeNodes}}
+	{{range $node := .XTreeNodes}}
 		<li class="x-tree-item">
 			{{if $node.IsDir}}
-				<button type="button" class="x-btn x-btn-sm" style="border:0;background:none;padding:0"
-					aria-label="{{ctx.Locale.Tr "x.expand_folder"}}"
+				<button type="button" class="x-tree-toggle" aria-expanded="false"
+					aria-label="{{ctx.Locale.Tr "x.expand_folder" $node.Name}}"
+					aria-controls="{{$node.ChildrenID}}"
 					hx-get="{{$node.ChildrenURL}}"
-					hx-target="#x-tree-{{$i}}"
+					hx-target="#{{$node.ChildrenID}}"
 					hx-swap="innerHTML">
 					{{xIcon "x-chevron-right" 12}}{{xIcon "x-folder"}}
 				</button>
-				<a class="x-tree-name" href="{{$.XRepoLink}}/src/branch/{{$.RefFullName.ShortName}}/{{PathEscapeSegments $node.Path}}">{{$node.Name}}</a>
-				<ul class="x-tree" id="x-tree-{{$i}}"></ul>
+				<a class="x-tree-name" href="{{$node.Link}}" title="{{$node.Name}}">{{$node.Name}}</a>
+				<ul class="x-tree" id="{{$node.ChildrenID}}"></ul>
 			{{else}}
 				{{xIcon "x-file"}}
-				<a class="x-tree-name" href="{{$.XRepoLink}}/src/branch/{{$.RefFullName.ShortName}}/{{PathEscapeSegments $node.Path}}">{{$node.Name}}</a>
+				<a class="x-tree-name" href="{{$node.Link}}" title="{{$node.Name}}">{{$node.Name}}</a>
 			{{end}}
 		</li>
 	{{else}}

@@ -1,2 +1,4 @@
-{{/* HTMX fragment: the search result rows only, no layout. */}}
+{{/* HTMX fragment: the search result rows, no layout, plus the pager
+     re-rendered for the new page out-of-band into #x-pager. */}}
 {{template "x/explore/repo_list" .}}
+<div id="x-pager" hx-swap-oob="outerHTML">{{template "x/base/pager" dict "Page" .Page "Target" "x-list" "Fragment" (print .XBase "/explore/repos/list") "Indicator" "x-list-indicator"}}</div>

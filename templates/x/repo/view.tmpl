@@ -1,9 +1,14 @@
 {{template "x/base/head_start" .}}
 	{{template "x/repo/header" .}}
-	<div class="x-grid" style="margin-top:16px">
+	<div class="x-grid x-mt-4">
 		<div>{{template "x/repo/tree" .}}</div>
 		<div>
 			{{template "x/repo/breadcrumb" .}}
+			{{/* the file card shows the name in its own header, but the page
+			     still needs a heading of its own to give the document an
+			     outline; it is for assistive technology only, so the card keeps
+			     the visual design of the directory listing */}}
+			<h1 class="x-sr-only">{{.FileTreePath}}</h1>
 			{{template "x/repo/file" .}}
 		</div>
 	</div>

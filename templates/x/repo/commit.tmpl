@@ -1,0 +1,78 @@
+{{template "x/base/head_start" .}}
+	{{template "x/repo/header" .}}
+	<div class="x-mt-4">
+		<h1 class="x-page-title">{{xIcon "x-git-commit"}}{{.XCommit.MessageTitle | ctx.RenderUtils.RenderEmoji}}
+			<span class="x-meta mono">{{ShortSha .XCommitID}}</span>
+		</h1>
+
+		<div class="x-card x-card-body x-commit-meta">
+			<div><span class="x-meta">{{ctx.Locale.Tr "repo.commits"}}</span> <span class="mono">{{ShortSha .XCommitID}}</span></div>
+			<div><span class="x-meta">{{ctx.Locale.Tr "x.commit_author"}}</span>
+				{{.XCommit.Author.Name}} &lt;{{.XCommit.Author.Email}}&gt;</div>
+			<div><span class="x-meta">{{ctx.Locale.Tr "x.commit_committer"}}</span>
+				{{.XCommit.Committer.Name}} &lt;{{.XCommit.Committer.Email}}&gt;
+				· {{DateUtils.AbsoluteLong .XCommit.Committer.When}}</div>
+			{{if .XCommitParents}}
+				<div><span class="x-meta">{{ctx.Locale.Tr "x.commit_parents"}}</span>
+					{{range $i, $parent := .XCommitParents}}{{if $i}},{{end}}
+						<a class="mono" href="{{$.XRepoLink}}/commit/{{PathEscape $parent}}">{{ShortSha $parent}}</a>{{end}}
+				</div>
+			{{end}}
+			{{/* the signature state comes from the same verification the production
+			     badge uses; only the rendering is the experiment's own */}}
+			{{with .XVerification}}
+				<div><span class="x-meta">{{ctx.Locale.Tr "x.commit_signature"}}</span>
+					{{if .Verified}}
+						<span class="x-badge x-badge-success">{{xIcon "x-check" 12}}{{ctx.Locale.Tr "x.verified"}}</span>
+					{{else if .Warning}}
+						<span class="x-badge x-badge-danger">{{xIcon "x-alert" 12}}{{ctx.Locale.Tr "x.unverified"}}</span>
+					{{else}}
+						<span class="x-badge">{{ctx.Locale.Tr "x.not_signed"}}</span>
+					{{end}}
+					<span class="x-meta">{{ctx.Locale.Tr .Reason}}</span>
+				</div>
+			{{end}}
+			<div class="x-row">
+				{{/* every changed file links here, so the commit is browsable in the
+				     experiment even though the diff itself is not rendered */}}
+				<a class="x-btn x-btn-sm" href="{{.XRepoLink}}/src/commit/{{PathEscape .XCommitID}}">{{xIcon "x-code"}}{{ctx.Locale.Tr "repo.diff.browse_source"}}</a>
+			</div>
+		</div>
+
+		{{if .XCommit.MessageBody}}
+			{{/* <pre> keeps the line breaks of a commit message and escapes its
+			     markup, which is what a message is: not a document */}}
+			<pre class="x-card x-card-body x-commit-body">{{.XCommit.MessageBody}}</pre>
+		{{end}}
+
+		<div class="x-card x-mt-3">
+			<div class="x-card-head">{{xIcon "x-file"}}{{ctx.Locale.Tr "x.commit_files"}}
+				<span class="x-spacer"></span>
+				<span class="x-meta">{{len .XCommitFiles}}</span>
+			</div>
+			{{if .XCommitFiles}}
+				<ul class="x-tree">
+					{{range .XCommitFiles}}
+						<li class="x-tree-item">
+							{{xIcon "x-file"}}
+							<a class="x-tree-name" href="{{.Link}}" title="{{.HeadPath}}">{{.HeadPath}}</a>
+							{{if .IsRename}}
+								<span class="x-meta">{{ctx.Locale.Tr "x.commit_renamed_from" .BasePath}}</span>
+							{{end}}
+							<span class="x-spacer"></span>
+							<span class="x-badge" title="{{ctx.Locale.Tr "x.status"}}">{{.Status}}</span>
+						</li>
+					{{end}}
+				</ul>
+			{{else}}
+				<div class="x-empty">{{ctx.Locale.Tr "x.commit_no_files"}}</div>
+			{{end}}
+		</div>
+
+		<p class="x-mt-3">
+			{{/* the full diff is one of the pages the experiment does not render
+			     yet, so the link says where it goes instead of pretending */}}
+			<a class="x-btn x-btn-sm" href="{{.RepoLink}}/commit/{{PathEscape .XCommitID}}">{{xIcon "x-arrow-left"}}{{ctx.Locale.Tr "x.experimental.diff_in_classic_ui"}}</a>
+		</p>
+	</div>
+{{template "x/base/head_end" .}}

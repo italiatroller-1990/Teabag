@@ -1,0 +1,28 @@
+{{/* Commit list body. Rendered inline on first paint and on its own as the
+     HTMX fragment the pager swaps in, so both paths share this markup. */}}
+<div id="x-list" class="x-card x-swap-fade">
+	<span id="x-list-indicator" class="htmx-indicator x-meta" role="status">{{ctx.Locale.Tr "x.loading"}}</span>
+	{{if .XCommits}}
+		<ul class="x-list">
+			{{range .XCommits}}
+				{{$gitCommit := .GitCommit}}
+				<li>
+					{{xIcon "x-git-commit"}}
+					<div class="x-commit-summary">
+						<a class="x-list-title" href="{{$.XRepoLink}}/commit/{{PathEscape $gitCommit.ID.String}}" title="{{$gitCommit.MessageUTF8}}">
+							{{$gitCommit.MessageTitle | ctx.RenderUtils.RenderEmoji}}
+						</a>
+						<div class="x-meta">
+							{{if $gitCommit.Author}}{{$gitCommit.Author.Name}}{{else}}{{$gitCommit.Committer.Name}}{{end}}
+							· {{DateUtils.TimeSince $gitCommit.Committer.When}}
+						</div>
+					</div>
+					<span class="x-spacer"></span>
+					<span class="x-tree-commit">{{ShortSha $gitCommit.ID.String}}</span>
+				</li>
+			{{end}}
+		</ul>
+	{{else}}
+		{{template "x/base/empty" .}}
+	{{end}}
+</div>
