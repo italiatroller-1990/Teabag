@@ -143,6 +143,7 @@ func (s *Service) Declare(
 ) (*connect.Response[runnerv1.DeclareResponse], error) {
 	runner := GetRunner(ctx)
 	if err := actions_model.UpdateRunner(ctx, runner, applyDeclareRequestToRunner(runner, req.Msg)...); err != nil {
+		log.Error("Declare: update runner %d failed: %v", runner.ID, err)
 		return nil, status.Errorf(codes.Internal, "update runner: %v", err)
 	}
 

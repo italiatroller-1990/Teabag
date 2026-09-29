@@ -40,6 +40,7 @@ var withRunner = connect.WithInterceptors(connect.UnaryInterceptorFunc(func(unar
 			if errors.Is(err, util.ErrNotExist) {
 				return nil, status.Error(codes.Unauthenticated, "unregistered runner")
 			}
+			log.Error("withRunner: lookup runner by uuid failed: %v", err)
 			return nil, status.Error(codes.Internal, err.Error())
 		}
 		if !util.CryptoConstTimeEqual(runner.TokenHash, auth_model.HashToken(token, runner.TokenSalt)) {

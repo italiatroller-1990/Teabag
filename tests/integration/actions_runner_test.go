@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"testing"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 	"gitea.dev/actionslib/ping/v1/pingv1connect"
 	runnerv1 "gitea.dev/actionslib/runner/v1"
 	"gitea.dev/actionslib/runner/v1/runnerv1connect"
+	actions_model "gitea.dev/models/actions"
 	auth_model "gitea.dev/models/auth"
 	"gitea.dev/modules/setting"
 
@@ -28,6 +30,7 @@ type mockRunner struct {
 }
 
 type mockRunnerClient struct {
+	uuid                string
 	pingServiceClient   pingv1connect.PingServiceClient
 	runnerServiceClient runnerv1connect.RunnerServiceClient
 }
@@ -53,6 +56,7 @@ func newMockRunnerClient(uuid, token string) *mockRunnerClient {
 	}))
 
 	client := &mockRunnerClient{
+		uuid:                uuid,
 		pingServiceClient:   pingv1connect.NewPingServiceClient(http.DefaultClient, baseURL, opt),
 		runnerServiceClient: runnerv1connect.NewRunnerServiceClient(http.DefaultClient, baseURL, opt),
 	}
@@ -173,4 +177,31 @@ func (r *mockRunner) execTask(t *testing.T, task *runnerv1.Task, outcome *mockTa
 	}))
 	assert.NoError(t, err)
 	assert.Equal(t, outcome.result, resp.Msg.State.Result)
+}
+
+func (r *mockRunner) declare(t *testing.T, version string, labels, capabilities []string) *runnerv1.DeclareResponse {
+	resp, err := r.client.runnerServiceClient.Declare(t.Context(), connect.NewRequest(&runnerv1.DeclareRequest{
+		Version:      version,
+		Labels:       labels,
+		Capabilities: capabilities,
+	}))
+	require.NoError(t, err)
+	return resp.Msg
+}
+
+func TestRunnerDeclare(t *testing.T) {
+	onGiteaRun(t, func(t *testing.T, _ *url.URL) {
+		runner := newMockRunner()
+		runner.registerAsRepoRunner(t, "user2", "repo1", "mock-declare-runner", []string{"mock-label"}, false)
+
+		msg := runner.declare(t, "declared-version", []string{"declared-label"}, []string{"cancelling"})
+		assert.Equal(t, "declared-version", msg.Runner.Version)
+		assert.Equal(t, []string{"declared-label"}, msg.Runner.Labels)
+
+		dbRunner, err := actions_model.GetRunnerByUUID(t.Context(), runner.client.uuid)
+		require.NoError(t, err)
+		assert.Equal(t, "declared-version", dbRunner.Version)
+		assert.Equal(t, []string{"declared-label"}, dbRunner.AgentLabels)
+		assert.True(t, dbRunner.HasCancellingSupport)
+	})
 }
